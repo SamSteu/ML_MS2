@@ -3,6 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
+from src.utils import accuracy_fn
 
 ## MS2
 
@@ -96,12 +97,6 @@ class CNN(nn.Module):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        print("x before resizing")
-        print(x)
-        print("x shape : ", x.shape)
-        np.reshape(x, (x.shape[0], 28, 28))
-        print("x after resizing")
-        print(x)
         x = F.max_pool2d(F.relu(self.conv2d1(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2d2(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2d3(x)), 2)
@@ -168,7 +163,7 @@ class Trainer(object):
         self.batch_size = batch_size
 
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = ...  ### WRITE YOUR CODE HERE
+        self.optimizer = torch.optim.SGD(model.parameters(), lr=self.lr)  ### WRITE YOUR CODE HERE
 
     def train_all(self, dataloader):
         """
@@ -200,6 +195,27 @@ class Trainer(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        self.model.train()
+        for it, batch in enumerate(dataloader):
+            # 5.1 Load a batch, break it down in images and targets.
+            x, y = batch
+
+            # 5.2 Run forward pass.
+            logits = self.model(x) 
+            
+            # 5.3 Compute loss (using 'criterion').
+            loss = self.criterion(logits, y)
+            
+            # 5.4 Run backward pass.
+            loss.backward()
+            
+            # 5.5 Update the weights using 'optimizer'.
+            self.optimizer.step() 
+            
+            # 5.6 Zero-out the accumulated gradients.
+            self.optimizer.zero_grad() 
+
+        return dataloader
 
     def predict_torch(self, dataloader):
         """
@@ -223,6 +239,22 @@ class Trainer(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        self.model.eval()
+        pred_labels = []
+        with torch.no_grad():
+            acc_run = 0
+            for it, batch in enumerate(dataloader):
+                # Get batch of data.
+                x, y = batch
+                x = x.to(self.device)  # Move input to the appropriate device
+                outputs = self.model(x)
+                pred_labels.append(torch.max(outputs, 1))
+
+                curr_bs = x.shape[0]
+                acc_run += accuracy_fn(self.model(x), y) * curr_bs
+            acc = acc_run / len(dataloader.dataset)
+
+            print(', accuracy test: {:.2f}'.format(acc))
         return pred_labels
     
     def fit(self, training_data, training_labels):
