@@ -8,7 +8,6 @@ from src.methods.pca import PCA
 from src.methods.deep_network import MLP, CNN, Trainer, MyViT
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
 
-#test commit
 def main(args):
     """
     The main function of the script. Do not hesitate to play with it
