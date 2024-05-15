@@ -19,10 +19,13 @@ def main(args):
         args (Namespace): arguments that were parsed from the command line (see at the end 
                           of this file). Their value can be accessed as "args.argument".
     """
+
+    #peut être utile maybe ?
+    class_names = ['0 Top/T-Shirt', '1 Trouser', '2 Pullover', '3 Drees', '4 Coat', '5 Sandal', '6 Shirt', '7 Sneaker', '8 Bag', '9 Ankle Boot']
+
+
     ## 1. First, we load our data and flatten the images into vectors
     xtrain, xtest, ytrain = load_data(args.data)
-    xtrain = xtrain.reshape(xtrain.shape[0], -1)
-    xtest = xtest.reshape(xtest.shape[0], -1)
 
     print("xtrain : ", xtrain.shape)
     print("ytrain : ", ytrain.shape)
@@ -40,6 +43,7 @@ def main(args):
     xtest = normalize_fn(xtest, means, std)
 
     #add bias :
+    # à demander aux assistants pour quels deep network on met un biais (car CNN on aura plus du 28x28 ca pose pb)
     if args.nn_type != "cnn" :
         xtrain = append_bias_term(xtrain)
         xtest = append_bias_term(xtest)
@@ -81,10 +85,20 @@ def main(args):
     # Note: you might need to reshape the data depending on the network you use!
     n_classes = get_n_classes(ytrain)
     if args.nn_type == "mlp":
-        model = ... ### WRITE YOUR CODE HERE
+        model = MLP(input_size, n_classes)
+    
     elif args.nn_type == "cnn" :
-        model = CNN(1, 10)
+        model = CNN(1, n_classes)  #(input_channels, n_classes, filters=(16, 32, 64))
+        
+        #j'ai reshape en 3 dimensions mais je suis pas sure
+        xtrain = xtrain.reshape(xtrain.shape[0], 28, -1)
+        xtest = xtest.reshape(xtest.shape[0], 28, -1)
+
+        #
         model.forward(xtrain)
+    
+    elif args.nn_type == "transformer" :
+        model = MyViT(chw, n_patches, n_blocks, hidden_d, n_heads, out_d)
 
     summary(model)
 
