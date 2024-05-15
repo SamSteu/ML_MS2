@@ -7,6 +7,7 @@ from src.data import load_data
 from src.methods.pca import PCA
 from src.methods.deep_network import MLP, CNN, Trainer, MyViT
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
+import copy
 
 def main(args):
     """
@@ -18,17 +19,43 @@ def main(args):
                           of this file). Their value can be accessed as "args.argument".
     """
     ## 1. First, we load our data and flatten the images into vectors
-    xtrain, xtest, ytrain = load_data(args.data_path)
+    xtrain, xtest, ytrain = load_data(args.data)
     xtrain = xtrain.reshape(xtrain.shape[0], -1)
     xtest = xtest.reshape(xtest.shape[0], -1)
 
     ## 2. Then we must prepare it. This is were you can create a validation set,
     #  normalize, add bias, etc.
+    #normalize : 
+    means = np.mean(xtrain)
+    std = np.std(xtrain)
+    xtrain = normalize_fn(xtrain, means, std)
+
+    means = np.mean(xtest)
+    std = np.std(xtest)
+    xtest = normalize_fn(xtest, means, std)
+
+    #add bias :
+    xtrain = append_bias_term(xtrain)
+    xtest = append_bias_term(xtest)
+
+    #global variables :
+    n_samples = xtrain.shape[0]
+    n_features = xtrain.shape[1]
 
     # Make a validation set
     if not args.test:
     ### WRITE YOUR CODE HERE
-        print("Using PCA")
+        all_ind = np.arange(n_samples)
+        rdm_perm_ind = np.random.permutation(all_ind)
+        n_test = int(n_samples * args.val_set)
+
+        xtrain_temp = copy.deepcopy(xtrain)
+        xtrain = xtrain_temp[rdm_perm_ind[:n_test]]
+        xtest = xtrain_temp[rdm_perm_ind[n_test:]]
+
+        ytrain_temp = copy.deepcopy(ytrain)
+        ytrain = ytrain_temp[rdm_perm_ind[:n_test]]
+        ytest = ytrain_temp[rdm_perm_ind[n_test:]]
 
     ### WRITE YOUR CODE HERE to do any other data processing
 
@@ -101,6 +128,9 @@ if __name__ == '__main__':
     parser.add_argument('--max_iters', type=int, default=100, help="max iters for methods which are iterative")
     parser.add_argument('--test', action="store_true",
                         help="train on whole training data and evaluate on the test data, otherwise use a validation set")
+    
+    #our arguments :
+    parser.add_argument("--val_set", type = float, default = 0.8, help = "percentage of validation set")
 
 
     # "args" will keep in memory the arguments and their values,
