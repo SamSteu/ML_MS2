@@ -9,6 +9,8 @@ from src.methods.deep_network import MLP, CNN, Trainer, MyViT
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
 import copy
 
+#blabla 
+
 def main(args):
     """
     The main function of the script. Do not hesitate to play with it
