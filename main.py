@@ -23,6 +23,10 @@ def main(args):
     xtrain = xtrain.reshape(xtrain.shape[0], -1)
     xtest = xtest.reshape(xtest.shape[0], -1)
 
+    print("xtrain : ", xtrain.shape)
+    print("ytrain : ", ytrain.shape)
+    print("xtest : ", xtest.shape)
+
     ## 2. Then we must prepare it. This is were you can create a validation set,
     #  normalize, add bias, etc.
     #normalize : 
@@ -35,8 +39,9 @@ def main(args):
     xtest = normalize_fn(xtest, means, std)
 
     #add bias :
-    xtrain = append_bias_term(xtrain)
-    xtest = append_bias_term(xtest)
+    if args.nn_type != "cnn" :
+        xtrain = append_bias_term(xtrain)
+        xtest = append_bias_term(xtest)
 
     #global variables :
     n_samples = xtrain.shape[0]
@@ -76,6 +81,9 @@ def main(args):
     n_classes = get_n_classes(ytrain)
     if args.nn_type == "mlp":
         model = ... ### WRITE YOUR CODE HERE
+    elif args.nn_type == "cnn" :
+        model = CNN(1, 10)
+        model.forward(xtrain)
 
     summary(model)
 

@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
+import numpy as np
 
 ## MS2
 
@@ -56,7 +57,7 @@ class CNN(nn.Module):
     It should use at least one convolutional layer.
     """
 
-    def __init__(self, input_channels, n_classes):
+    def __init__(self, input_channels, n_classes, filters=(16, 32, 64)):
         """
         Initialize the network.
         
@@ -67,12 +68,18 @@ class CNN(nn.Module):
             input_channels (int): number of channels in the input
             n_classes (int): number of classes to predict
         """
-        super().__init__()
+        super(CNN, self).__init__()
         ##
         ###
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        self.conv2d1 = nn.Conv2d(input_channels, filters[0], 3, 1, padding = 1)
+        self.conv2d2 = nn.Conv2d(filters[0], filters[1], 3, 1, padding = 1)
+        self.conv2d3 = nn.Conv2d(filters[1], filters[2], 3, 1, padding = 1)
+        self.fc1 = nn.Linear(filters[2] * 3 * 3, 120)
+        self.fc2 = nn.Linear(120, n_classes)
+
 
     def forward(self, x):
         """
@@ -89,7 +96,18 @@ class CNN(nn.Module):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        return preds
+        print("x before resizing")
+        print(x)
+        print("x shape : ", x.shape)
+        np.reshape(x, (x.shape[0], 28, 28))
+        print("x after resizing")
+        print(x)
+        x = F.max_pool2d(F.relu(self.conv2d1(x)), 2)
+        x = F.max_pool2d(F.relu(self.conv2d2(x)), 2)
+        x = F.max_pool2d(F.relu(self.conv2d3(x)), 2)
+        x = x.reshape((x.shape[0], -1))
+        x = F.relu(self.fc1(x))
+        return self.fc2(x)
 
 
 class MyViT(nn.Module):
