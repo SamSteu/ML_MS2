@@ -83,7 +83,8 @@ def main(args):
     # Note: you might need to reshape the data depending on the network you use!
     n_classes = get_n_classes(ytrain)
     if args.nn_type == "mlp":
-        model = MLP(xtrain.shape[0], n_classes)
+        model = MLP(xtrain.shape[1], n_classes)
+        args.nn_batch_size = 1
     
     elif args.nn_type == "cnn" :
         model = CNN(1, n_classes)  #(input_channels, n_classes, filters=(16, 32, 64))
@@ -149,7 +150,7 @@ if __name__ == '__main__':
     parser.add_argument('--pca_d', type=int, default=100, help="the number of principal components")
 
 
-    parser.add_argument('--lr', type=float, default=1e-5, help="learning rate for methods with learning rate")
+    parser.add_argument('--lr', type=float, default=1e-2, help="learning rate for methods with learning rate")
     parser.add_argument('--max_iters', type=int, default=100, help="max iters for methods which are iterative")
     parser.add_argument('--test', action="store_true",
                         help="train on whole training data and evaluate on the test data, otherwise use a validation set")

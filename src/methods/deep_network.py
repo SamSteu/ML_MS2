@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
-from src.utils import accuracy_fn
+from src.utils import accuracy_fn, onehot_to_label
 
 ## MS2
 
@@ -53,7 +53,7 @@ class MLP(nn.Module):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        #x = x.flatten(-3)
+        x = x.view(x.size(0), -1)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
@@ -187,7 +187,22 @@ class Trainer(object):
         for ep in range(self.epochs):
             print("train epoch : ", ep, " / ", self.epochs)
             self.train_one_epoch(dataloader, ep)
-
+            
+            correct = 0
+            total = 0
+            self.model.eval()
+            # Disable gradient calculation
+            with torch.no_grad():
+                for batch in dataloader:
+                    inputs, labels = batch
+                    outputs = self.model(inputs)
+                    _, predicted = torch.max(outputs, 1)
+                    total += labels.size(0)
+                    correct += (predicted == labels).sum().item()
+            
+            # Calculate accuracy
+            accuracy = correct / total
+            print("accuracy : ", accuracy * 100, "%")
             ### WRITE YOUR CODE HERE if you want to do add something else at each epoch
 
     def train_one_epoch(self, dataloader, ep):
@@ -249,22 +264,19 @@ class Trainer(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        self.model.eval()
+        self.model.eval()  # Set model to evaluation mode
         pred_labels = []
-        with torch.no_grad():
-            acc_run = 0
-            for it, batch in enumerate(dataloader):
-                # Get batch of data.
-                x, y = batch
-                x = x.to(self.device)  # Move input to the appropriate device
-                outputs = self.model(x)
-                pred_labels.append(torch.max(outputs, 1))
 
-                curr_bs = x.shape[0]
-                acc_run += accuracy_fn(self.model(x), y) * curr_bs
-            acc = acc_run / len(dataloader.dataset)
+        with torch.no_grad():  # Disable gradient calculation
+            for batch in dataloader:
+                x = batch[0]  # Get the input data from the batch
+                outputs = self.model(x)  # Get the model predictions
+                _, preds = torch.max(outputs, 1)  # Get the predicted class labels
+                pred_labels.append(preds)
 
-            print(', accuracy test: {:.2f}'.format(acc))
+        # Concatenate all the predicted labels into a single tensor
+        pred_labels = torch.cat(pred_labels)
+
         return pred_labels
     
     def fit(self, training_data, training_labels):
