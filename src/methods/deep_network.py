@@ -32,6 +32,11 @@ class MLP(nn.Module):
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        self.fc1 = nn.Linear(input_size, 512)
+        self.fc2 = nn.Linear(512, 256)
+        self.fc3 = nn.Linear(256, 128)
+        self.fc4 = nn.Linear(128, n_classes)
+
 
     def forward(self, x):
         """
@@ -48,7 +53,11 @@ class MLP(nn.Module):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        return preds
+        #x = x.flatten(-3)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        return self.fc4(x)
 
 
 class CNN(nn.Module):
@@ -97,13 +106,11 @@ class CNN(nn.Module):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        print("[forward] start forward")
         x = F.max_pool2d(F.relu(self.conv2d1(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2d2(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2d3(x)), 2)
         x = x.reshape((x.shape[0], -1))
         x = F.relu(self.fc1(x))
-        print("[forward] finish forward")
         return self.fc2(x)
 
 

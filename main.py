@@ -45,9 +45,6 @@ def main(args):
 
     #add bias :
     # à demander aux assistants pour quels deep network on met un biais (car CNN on aura plus du 28x28 ca pose pb)
-    if args.nn_type != "cnn" :
-        xtrain = append_bias_term(xtrain)
-        xtest = append_bias_term(xtest)
 
     #global variables :
     n_samples = xtrain.shape[0]
@@ -86,7 +83,7 @@ def main(args):
     # Note: you might need to reshape the data depending on the network you use!
     n_classes = get_n_classes(ytrain)
     if args.nn_type == "mlp":
-        model = MLP(input_size, n_classes)
+        model = MLP(xtrain.shape[0], n_classes)
     
     elif args.nn_type == "cnn" :
         model = CNN(1, n_classes)  #(input_channels, n_classes, filters=(16, 32, 64))
@@ -95,10 +92,7 @@ def main(args):
         xtrain = xtrain.astype(np.float32).reshape(xtrain.shape[0], 1, 28, -1)
         xtest = xtest.astype(np.float32).reshape(xtest.shape[0], 1, 28, -1)
 
-        #
-        print("start first forward")
-        model.forward(torch.from_numpy(xtrain))
-        print("finish first forward")
+        
     
     elif args.nn_type == "transformer" :
         model = MyViT(chw, n_patches, n_blocks, hidden_d, n_heads, out_d)
