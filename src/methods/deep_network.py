@@ -97,11 +97,13 @@ class CNN(nn.Module):
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        print("[forward] start forward")
         x = F.max_pool2d(F.relu(self.conv2d1(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2d2(x)), 2)
         x = F.max_pool2d(F.relu(self.conv2d3(x)), 2)
         x = x.reshape((x.shape[0], -1))
         x = F.relu(self.fc1(x))
+        print("[forward] finish forward")
         return self.fc2(x)
 
 
@@ -176,6 +178,7 @@ class Trainer(object):
             dataloader (DataLoader): dataloader for training data
         """
         for ep in range(self.epochs):
+            print("train epoch : ", ep, " / ", self.epochs)
             self.train_one_epoch(dataloader, ep)
 
             ### WRITE YOUR CODE HERE if you want to do add something else at each epoch
@@ -200,20 +203,30 @@ class Trainer(object):
             # 5.1 Load a batch, break it down in images and targets.
             x, y = batch
 
+            print("[train_one_epoch] : before model(x)")
             # 5.2 Run forward pass.
             logits = self.model(x) 
+            print("[train_one_epoch] : after model(x)")
             
+            print("[train_one_epoch] : before criterion")
             # 5.3 Compute loss (using 'criterion').
             loss = self.criterion(logits, y)
+            print("[train_one_epoch] : after criterion")
             
             # 5.4 Run backward pass.
+            print("[train_one_epoch] : before backward")
             loss.backward()
+            print("[train_one_epoch] : after backward")
             
             # 5.5 Update the weights using 'optimizer'.
+            print("[train_one_epoch] : before step")
             self.optimizer.step() 
+            print("[train_one_epoch] : after step")
             
             # 5.6 Zero-out the accumulated gradients.
+            print("[train_one_epoch] : before zero grad")
             self.optimizer.zero_grad() 
+            print("[train_one_epoch] : after zero grad")
 
         return dataloader
 
@@ -271,8 +284,9 @@ class Trainer(object):
         """
 
         # First, prepare data for pytorch
+        print("start fit")
         train_dataset = TensorDataset(torch.from_numpy(training_data).float(), 
-                                      torch.from_numpy(training_labels))
+                                      torch.from_numpy(training_labels).long())
         train_dataloader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
         
         self.train_all(train_dataloader)

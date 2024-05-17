@@ -8,6 +8,7 @@ from src.methods.pca import PCA
 from src.methods.deep_network import MLP, CNN, Trainer, MyViT
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
 import copy
+import torch
 
 
 def main(args):
@@ -91,11 +92,13 @@ def main(args):
         model = CNN(1, n_classes)  #(input_channels, n_classes, filters=(16, 32, 64))
         
         #j'ai reshape en 3 dimensions mais je suis pas sure
-        xtrain = xtrain.reshape(xtrain.shape[0], 28, -1)
-        xtest = xtest.reshape(xtest.shape[0], 28, -1)
+        xtrain = xtrain.astype(np.float32).reshape(xtrain.shape[0], 1, 28, -1)
+        xtest = xtest.astype(np.float32).reshape(xtest.shape[0], 1, 28, -1)
 
         #
-        model.forward(xtrain)
+        print("start first forward")
+        model.forward(torch.from_numpy(xtrain))
+        print("finish first forward")
     
     elif args.nn_type == "transformer" :
         model = MyViT(chw, n_patches, n_blocks, hidden_d, n_heads, out_d)
@@ -103,16 +106,21 @@ def main(args):
     summary(model)
 
     # Trainer object
+    print("start instantiate Trainer")
     method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size)
+    print("instantiated Trainer")
 
 
     ## 4. Train and evaluate the method
 
     # Fit (:=train) the method on the training data
+    print("fit Trainer")
     preds_train = method_obj.fit(xtrain, ytrain)
 
     # Predict on unseen data
+    print("start to predict Trainer")
     preds = method_obj.predict(xtest)
+    print("finish predict Trainer")
 
     ## Report results: performance on train and valid/test sets
     acc = accuracy_fn(preds_train, ytrain)
