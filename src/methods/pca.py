@@ -25,6 +25,7 @@ class PCA(object):
         # the principal components (will be computed from the training data and saved to this variable)
         self.W = None
 
+
     def find_principal_components(self, training_data):
         """
         Finds the principal components of the training data and returns the explained variance in percentage.
@@ -43,6 +44,23 @@ class PCA(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        self.mean = np.mean(training_data, axis=0)
+        training_data = training_data - self.mean
+
+        C = np.cov(training_data.T)
+        eigvals, eigvecs = np.linalg.eigh(C)
+
+        #sorting our eigvals and select the corresponding eigvecs
+        sorted_indices = np.argsort(eigvals)[::-1]
+        eigvals = eigvals[sorted_indices]
+        eigvecs = eigvecs[:, sorted_indices]
+
+        self.W = eigvecs[:, :self.d]  # Dxd matrix
+        eg = eigvals[:self.d]    # d values
+        
+        # Compute the explained variance
+        exvar = np.sum(eg) / np.sum(eigvals) * 100
+        
         return exvar
 
     def reduce_dimension(self, data):
@@ -59,6 +77,10 @@ class PCA(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        self.find_principal_components(data)
+        # project the data using W
+        data_reduced = data @ self.W
+        
         return data_reduced
         
 
