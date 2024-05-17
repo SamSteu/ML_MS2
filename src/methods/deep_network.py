@@ -203,30 +203,20 @@ class Trainer(object):
             # 5.1 Load a batch, break it down in images and targets.
             x, y = batch
 
-            print("[train_one_epoch] : before model(x)")
             # 5.2 Run forward pass.
             logits = self.model(x) 
-            print("[train_one_epoch] : after model(x)")
             
-            print("[train_one_epoch] : before criterion")
             # 5.3 Compute loss (using 'criterion').
             loss = self.criterion(logits, y)
-            print("[train_one_epoch] : after criterion")
             
             # 5.4 Run backward pass.
-            print("[train_one_epoch] : before backward")
             loss.backward()
-            print("[train_one_epoch] : after backward")
             
             # 5.5 Update the weights using 'optimizer'.
-            print("[train_one_epoch] : before step")
             self.optimizer.step() 
-            print("[train_one_epoch] : after step")
             
             # 5.6 Zero-out the accumulated gradients.
-            print("[train_one_epoch] : before zero grad")
             self.optimizer.zero_grad() 
-            print("[train_one_epoch] : after zero grad")
 
         return dataloader
 
