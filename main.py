@@ -22,7 +22,8 @@ def visualize_histogram(labels_train, labels_test):
 
     # train data histogram
     axs[0].bar(np.arange(n_classes), np.bincount(labels_train))
-    axs[0].set(xlabel='Training data', ylabel='Count')
+    axs[0].set_title('Training data')
+    axs[0].set_ylabel('Count')
     axs[0].set_xticks(np.arange(0, n_classes))
     axs[0].set_xticklabels(class_names, rotation=45, ha="right")
     axs[0].grid(True)
@@ -30,7 +31,8 @@ def visualize_histogram(labels_train, labels_test):
 
     # test data histogram
     axs[1].bar(np.arange(n_classes), np.bincount(labels_test))
-    axs[1].set(xlabel='Testing data', ylabel='Count')
+    axs[1].set_title('Validation set data')
+    axs[1].set_ylabel('Count')
     axs[1].set_xticks(np.arange(0, n_classes))
     axs[1].set_xticklabels(class_names, rotation=45, ha="right")
     axs[1].grid(True)
@@ -154,7 +156,7 @@ def main(args):
         ytest = ytrain_temp[rdm_perm_ind[n_test:]]
 
         #A DECOMMENTER POUR LE RENDU !!
-        #visualize_histogram(ytrain, ytest)
+        visualize_histogram(ytrain, ytest)
     
     
     
