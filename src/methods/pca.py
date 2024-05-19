@@ -80,7 +80,6 @@ class PCA(object):
         self.find_principal_components(data)
         # project the data using W
         data_reduced = data @ self.W
-        
         return data_reduced
         
 

@@ -1,6 +1,7 @@
 import argparse
 
 import numpy as np
+import matplotlib.pyplot as plt
 from torchinfo import summary
 
 from src.data import load_data
@@ -9,6 +10,95 @@ from src.methods.deep_network import MLP, CNN, Trainer, MyViT
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
 import copy
 import torch
+
+
+
+def visualize_histogram(labels_train, labels_test):
+    class_names = ['0 Top/T-Shirt', '1 Trouser', '2 Pullover', '3 Dress', '4 Coat', '5 Sandal', '6 Shirt', '7 Sneaker', '8 Bag', '9 Ankle Boot']
+    n_classes = get_n_classes(labels_train)
+    
+    fig, axs = plt.subplots(2, 1, figsize=(10, 8))
+    fig.suptitle('Number of items in each clothing category')
+
+    # train data histogram
+    axs[0].bar(np.arange(n_classes), np.bincount(labels_train))
+    axs[0].set(xlabel='Training data', ylabel='Count')
+    axs[0].set_xticks(np.arange(0, n_classes))
+    axs[0].set_xticklabels(class_names, rotation=45, ha="right")
+    axs[0].grid(True)
+    axs[0].set_axisbelow(True)
+
+    # test data histogram
+    axs[1].bar(np.arange(n_classes), np.bincount(labels_test))
+    axs[1].set(xlabel='Testing data', ylabel='Count')
+    axs[1].set_xticks(np.arange(0, n_classes))
+    axs[1].set_xticklabels(class_names, rotation=45, ha="right")
+    axs[1].grid(True)
+    axs[1].set_axisbelow(True)
+
+    fig.subplots_adjust(hspace=0.5)
+    plt.show()
+
+
+
+def ROC_curve(probas, true, name) :
+    plt.figure(figsize=(9,4))
+    plt.title(f"ROC curve of {name}")
+    plt.ylabel("True Positive rate")
+    plt.xlabel("False Positive rate")
+    tresholdsSet = np.arange(0, 1, 0.1)
+    areas = 0
+
+    for item in range(probas.shape[1]) :
+        X_candidates = []
+        Y_candidates = []
+        for treshold in tresholdsSet :
+            P = np.sum(true[:, item])
+            N = true.shape[0] - P
+
+            oneColumnPredicted = probas[:, item]
+            oneColumnPredicted = np.where(oneColumnPredicted >= treshold, 1, 0)
+
+            oneColumnTrue = true[:, item]
+
+            TP = np.sum((oneColumnPredicted == 1) & (oneColumnTrue == 1))
+            FP = np.sum((oneColumnPredicted == 1) & (oneColumnTrue == 0))
+            FN = np.sum((oneColumnPredicted == 0) & (oneColumnTrue == 1))
+            TN = np.sum((oneColumnPredicted == 0) & (oneColumnTrue == 0))
+
+            TPR = TP / float(P)
+            FPR = FP / float(N)
+
+
+            X_candidates.append(FPR)
+            Y_candidates.append(TPR)
+
+        areas -= np.trapz(Y_candidates, X_candidates)
+        plt.plot(X_candidates, Y_candidates)
+
+
+    plt.plot(np.arange(0, 1.1, 0.1), np.arange(0, 1.1, 0.1), '--', color = "gray", label = 'y = x')
+    areas /= float(probas.shape[1])
+    plt.text(0.5, 0.0, f'AUC = {areas}', ha='center')
+    plt.legend()
+    plt.show()
+
+
+def plot_epoch_score(epoch_acc, epoch_f1):
+    print("Scores during training phase")
+    n = len(epoch_acc)
+    plt.figure(figsize=(9,4))
+    plt.title("Scores during training phase for each epoch")
+    plt.ylabel("Score [%]")
+    plt.xlabel("Epoch number")
+
+    plt.plot(np.arange(n+1), epoch_acc, label = "Accuracy")
+    plt.plot(np.arange(n+1), epoch_f1, label = "F1 score")
+    #plt.xticks(np.arange(n))
+    plt.legend()
+    plt.show()
+
+
 
 
 def main(args):
@@ -21,16 +111,14 @@ def main(args):
                           of this file). Their value can be accessed as "args.argument".
     """
 
-    #peut être utile maybe ?
-    class_names = ['0 Top/T-Shirt', '1 Trouser', '2 Pullover', '3 Drees', '4 Coat', '5 Sandal', '6 Shirt', '7 Sneaker', '8 Bag', '9 Ankle Boot']
-
-
     ## 1. First, we load our data and flatten the images into vectors
     xtrain, xtest, ytrain = load_data(args.data)
 
     print("xtrain : ", xtrain.shape)
     print("ytrain : ", ytrain.shape)
     print("xtest : ", xtest.shape)
+    
+    
 
     ## 2. Then we must prepare it. This is were you can create a validation set,
     #  normalize, add bias, etc.
@@ -65,6 +153,12 @@ def main(args):
         ytrain = ytrain_temp[rdm_perm_ind[:n_test]]
         ytest = ytrain_temp[rdm_perm_ind[n_test:]]
 
+        #A DECOMMENTER POUR LE RENDU !!
+        #visualize_histogram(ytrain, ytest)
+    
+    
+    
+    
     ### WRITE YOUR CODE HERE to do any other data processing
 
 
@@ -93,35 +187,47 @@ def main(args):
         xtrain = xtrain.astype(np.float32).reshape(xtrain.shape[0], 1, 28, -1)
         xtest = xtest.astype(np.float32).reshape(xtest.shape[0], 1, 28, -1)
 
-        
     
     elif args.nn_type == "transformer" :
-        model = MyViT(chw, n_patches, n_blocks, hidden_d, n_heads, out_d)
+        xtrain = xtrain.astype(np.float32).reshape(xtrain.shape[0], 1, 28, -1)
+        xtest = xtest.astype(np.float32).reshape(xtest.shape[0], 1, 28, -1)
+        #VALEURS DES PARAMS A AJUSTER
+        model = MyViT((1, 28, 28), n_patches = 7, n_blocks = 6, hidden_d = 256, n_heads = 8, out_d =10)
 
     summary(model)
 
     # Trainer object
-    print("start instantiate Trainer")
-    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size)
-    print("instantiated Trainer")
+    print("starting instantiate Trainer...")
+    accuracy_list = []
+    macrof1_list = []
+    method_obj = Trainer(model, accuracy_list, macrof1_list, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size)
+    print("instantiated Trainer !\n")
 
 
     ## 4. Train and evaluate the method
 
     # Fit (:=train) the method on the training data
-    print("fit Trainer")
+    print("fitting Trainer...")
     preds_train = method_obj.fit(xtrain, ytrain)
+    print("fitted Trainer !\n")
+
+    #plot les accuracies pour voir l'évolution au cours des epochs
+    plot_epoch_score(accuracy_list, macrof1_list)
+
 
     # Predict on unseen data
-    print("start to predict Trainer")
+    print("starting to predict Trainer on unseen data...")
     preds = method_obj.predict(xtest)
-    print("finish predict Trainer")
+    print("finished predict Trainer !\n")
+
+
+
 
     ## Report results: performance on train and valid/test sets
     acc = accuracy_fn(preds_train, ytrain)
+    print(ytrain.shape)
     macrof1 = macrof1_fn(preds_train, ytrain)
     print(f"\nTrain set: accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
-
 
     ## As there are no test dataset labels, check your model accuracy on validation dataset.
     # You can check your model performance on test set by submitting your test set predictions on the AIcrowd competition.
@@ -131,6 +237,10 @@ def main(args):
 
 
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
+
+    # Ce serait cool d'ajouter ROC curve, Confusion matrix commme pour le MS1
+
+
 
 
 if __name__ == '__main__':
