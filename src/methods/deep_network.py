@@ -151,7 +151,7 @@ class CNN_initial(nn.Module):
 
 
 class MyMSA(nn.Module):
-    def __init__(self, d, n_heads=2):
+    def __init__(self, d, n_heads=2):       #A VOIR LES PARAMS PAR DEFAUT (à optimiser)
         super(MyMSA, self).__init__()
         self.d = d
         self.n_heads = n_heads
@@ -267,7 +267,7 @@ class MyViT(nn.Module):
                 for j in range(n_patches):
 
                     # Extract the patch of the image.
-                    patch = image[:, i * patch_size: (i + 1) * patch_size, j * patch_size: (j + 1) * patch_size] ### WRITE YOUR CODE HERE
+                    patch = image[:, i * patch_size: (i + 1) * patch_size, j * patch_size: (j + 1) * patch_size]
 
                     # Flatten the patch and store it.
                     patches[idx, i * n_patches + j] = patch.flatten()

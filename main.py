@@ -1,15 +1,17 @@
 import argparse
-
 import numpy as np
-import matplotlib.pyplot as plt
 from torchinfo import summary
 
 from src.data import load_data
 from src.methods.pca import PCA
 from src.methods.deep_network import MLP, CNN, Trainer, MyViT
 from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
+
 import copy
 import torch
+import matplotlib.pyplot as plt
+np.random.seed(100)
+import time
 
 
 
@@ -24,7 +26,7 @@ def visualize_histogram(labels_train, labels_test):
     axs[0].bar(np.arange(n_classes), np.bincount(labels_train))
     axs[0].set_title('Training data')
     axs[0].set_ylabel('Count')
-    axs[0].set_xticks(np.arange(0, n_classes))
+    axs[0].set_xticks(np.arange(n_classes))
     axs[0].set_xticklabels(class_names, rotation=45, ha="right")
     axs[0].grid(True)
     axs[0].set_axisbelow(True)
@@ -33,7 +35,7 @@ def visualize_histogram(labels_train, labels_test):
     axs[1].bar(np.arange(n_classes), np.bincount(labels_test))
     axs[1].set_title('Validation set data')
     axs[1].set_ylabel('Count')
-    axs[1].set_xticks(np.arange(0, n_classes))
+    axs[1].set_xticks(np.arange(n_classes))
     axs[1].set_xticklabels(class_names, rotation=45, ha="right")
     axs[1].grid(True)
     axs[1].set_axisbelow(True)
@@ -94,8 +96,8 @@ def plot_epoch_score(epoch_acc, epoch_f1):
     plt.ylabel("Score [%]")
     plt.xlabel("Epoch number")
 
-    plt.plot(np.arange(n+1), epoch_acc, label = "Accuracy")
-    plt.plot(np.arange(n+1), epoch_f1, label = "F1 score")
+    plt.plot(np.arange(n), epoch_acc, label = "Accuracy")
+    plt.plot(np.arange(n), epoch_f1, label = "F1 score")
     #plt.xticks(np.arange(n))
     plt.legend()
     plt.show()
@@ -233,8 +235,8 @@ def main(args):
 
     ## As there are no test dataset labels, check your model accuracy on validation dataset.
     # You can check your model performance on test set by submitting your test set predictions on the AIcrowd competition.
-    acc = accuracy_fn(preds, xtest)
-    macrof1 = macrof1_fn(preds, xtest)
+    acc = accuracy_fn(preds, ytest)         #j'ai remplacé, avant c'était xtest
+    macrof1 = macrof1_fn(preds, ytest)      #idem
     print(f"Validation set:  accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
 
 
@@ -274,4 +276,7 @@ if __name__ == '__main__':
     # "args" will keep in memory the arguments and their values,
     # which can be accessed as "args.data", for example.
     args = parser.parse_args()
+    s1 = time.time()
     main(args)
+    s2 = time.time()
+    print(f"Running time : {s2-s1} seconds")
