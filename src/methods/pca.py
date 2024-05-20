@@ -44,6 +44,8 @@ class PCA(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
+        training_data = np.divide(training_data, 255)  #pas dans la série mais trouvé sur internet
+
         self.mean = np.mean(training_data, axis=0)
         training_data = training_data - self.mean
 

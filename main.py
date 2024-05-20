@@ -158,7 +158,7 @@ def main(args):
         ytest = ytrain_temp[rdm_perm_ind[n_test:]]
 
         #A DECOMMENTER POUR LE RENDU !!
-        visualize_histogram(ytrain, ytest)
+        #visualize_histogram(ytrain, ytest)
     
     
     
@@ -171,7 +171,11 @@ def main(args):
         print("Using PCA")
         pca_obj = PCA(d=args.pca_d)
         ### WRITE YOUR CODE HERE: use the PCA object to reduce the dimensionality of the data
-
+        #exvar = pca_obj.find_principal_components
+    
+        #xtrain = pca_obj.reduce_dimension(xtrain)
+        #print(xtrain.shape)
+        #print(f'The total variance explained by the first {args.pca_d} principal components is {exvar:.3f} %')
 
     ## 3. Initialize the method you want to use.
 
@@ -261,7 +265,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default="cpu",
                         help="Device to use for the training, it can be 'cpu' | 'cuda' | 'mps'")
     parser.add_argument('--use_pca', action="store_true", help="use PCA for feature reduction")
-    parser.add_argument('--pca_d', type=int, default=100, help="the number of principal components")
+    parser.add_argument('--pca_d', type=int, default=84, help="the number of principal components")
 
 
     parser.add_argument('--lr', type=float, default=1e-2, help="learning rate for methods with learning rate")

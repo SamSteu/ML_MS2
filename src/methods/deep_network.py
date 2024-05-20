@@ -7,15 +7,31 @@ from src.utils import accuracy_fn, onehot_to_label, macrof1_fn
 
 ## MS2
 
-
 class MLP(nn.Module):
+    def __init__(self, input_size, n_classes, dropout_prob=0.5):
+        super().__init__()
+        self.fc1 = nn.Linear(input_size, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.dropout3 = nn.Dropout(dropout_prob)
+        self.fc4 = nn.Linear(64, n_classes)
+
+    def forward(self, x):
+        x = x.view(x.size(0), -1)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        x = self.dropout3(x)
+        return self.fc4(x)
+    
+class MLP_initial(nn.Module):
     """
     An MLP network which does classification.
 
     It should not use any convolutional layers.
     """
 
-    def __init__(self, input_size, n_classes):
+    def __init__(self, input_size, n_classes, dropout_prob=0.5):
         """
         Initialize the network.
         
@@ -27,16 +43,11 @@ class MLP(nn.Module):
             n_classes (int): number of classes to predict
         """
         super().__init__()
-        self.fc1 = nn.Linear(input_size, 512)
-        self.fc2 = nn.Linear(512, 256)
-        self.fc3 = nn.Linear(256, 128)
-        self.fc4 = nn.Linear(128, n_classes)
 
-        """CHATGPT
-        self.fc1 = nn.Linear(input_size, 256)  # Reduced from 512 to 256
-        self.fc2 = nn.Linear(256, 128)  # Reduced from 256 to 128
-        self.fc3 = nn.Linear(128, 64)  # Reduced from 128 to 64
-        self.fc4 = nn.Linear(64, n_classes)  # Output layer remains the same"""
+        self.fc1 = nn.Linear(input_size, 256)
+        self.fc2 = nn.Linear(256, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.fc4 = nn.Linear(64, n_classes)
 
 
     def forward(self, x):
