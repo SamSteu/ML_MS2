@@ -95,7 +95,6 @@ def main(args):
     n_classes = get_n_classes(ytrain)
     if args.nn_type == "mlp":
         model = MLP(xtrain.shape[1], n_classes)
-        args.nn_batch_size = 1
     
     elif args.nn_type == "cnn" :
         model = CNN(1, n_classes)  #(input_channels, n_classes, filters=(16, 32, 64))
