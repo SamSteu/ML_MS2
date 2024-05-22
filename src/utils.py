@@ -1,5 +1,6 @@
 import numpy as np 
 import matplotlib.pyplot as plt
+import os
 
 # Generaly utilies
 ##################
@@ -190,10 +191,20 @@ def ROC_curve(probas, true, name) :
     plt.show()
 
 
+# Générer un nom de fichier unique
+def get_unique_filename(directory, base_filename, extension):
+    counter = 1
+    filename = f"{base_filename}{extension}"
+    while os.path.exists(os.path.join(directory, filename)):
+        filename = f"{base_filename}_{counter}{extension}"
+        counter += 1
+    return os.path.join(directory, filename)
+
+
 def plot_epoch_score(epoch_acc, epoch_f1, titre, acc_train, macrof1_train, acc_test, macrof1_test):
     print("Scores during training phase")
     n = len(epoch_acc)
-    plt.figure(figsize=(9,4))
+    plt.figure(figsize=(11,8))
     plt.title("Scores during training phase for each epoch :\n" + 
             titre +"\n" +
             f"Train set: accuracy = {acc_train:.3f}% - F1-score = {macrof1_train:.6f}\n" +
@@ -205,4 +216,11 @@ def plot_epoch_score(epoch_acc, epoch_f1, titre, acc_train, macrof1_train, acc_t
     plt.plot(np.arange(n), epoch_f1, label = "F1 score")
     #plt.xticks(np.arange(n))
     plt.legend()
-    plt.savefig("graph_scores\\"+ titre)
+    
+    
+    base_filename = titre
+    extension = ".png"
+    output_dir = "graph_scores"
+    unique_filename = get_unique_filename(output_dir, base_filename, extension)
+
+    plt.savefig(unique_filename)
