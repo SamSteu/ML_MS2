@@ -45,6 +45,7 @@ class CNN(nn.Module):
             n_classes (int): number of classes to predict
         """
         super(CNN, self).__init__()
+        print("filter : ", filters)
         self.conv2d1 = nn.Conv2d(in_channels=input_channels, out_channels=filters[0], kernel_size=3, stride=1, padding=1)
         self.conv2d2 = nn.Conv2d(in_channels=filters[0], out_channels=filters[1], kernel_size=3, stride=1, padding=1)
         self.conv2d3 = nn.Conv2d(in_channels=filters[1], out_channels=filters[2], kernel_size=3, stride=1, padding=1)

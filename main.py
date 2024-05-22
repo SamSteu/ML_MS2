@@ -97,7 +97,7 @@ def main(args):
         model = MLP(xtrain.shape[1], n_classes, dropout_prob=args.dropout)
     
     elif args.nn_type == "cnn" :
-        model = CNN(1, n_classes)  #(input_channels, n_classes, filters=(16, 32, 64))
+        model = CNN(1, n_classes, filters=args.filters)  #(input_channels, n_classes, filters=(16, 32, 64))
         
         #j'ai reshape en 3 dimensions mais je suis pas sure
         xtrain = xtrain.astype(np.float32).reshape(xtrain.shape[0], 1, 28, -1)
@@ -108,7 +108,7 @@ def main(args):
         xtrain = xtrain.astype(np.float32).reshape(xtrain.shape[0], 1, 28, -1)
         xtest = xtest.astype(np.float32).reshape(xtest.shape[0], 1, 28, -1)
         #VALEURS DES PARAMS A AJUSTER
-        model = MyViT((1, 28, 28), n_patches = 7, n_blocks = 1, hidden_d = 256, n_heads = 8, out_d =10)
+        model = MyViT((1, 28, 28), n_patches = args.n_patches, n_blocks = args.n_blocks, hidden_d = args.hidden_d, n_heads = args.n_heads, out_d = get_n_classes(ytrain))
 
     summary(model)
 
@@ -181,8 +181,13 @@ if __name__ == '__main__':
     #our arguments :
     parser.add_argument("--val_set", type = float, default = 0.8, help = "percentage of validation set")
     parser.add_argument("--title", type = str, default = "sans titre", help = "titre pour plot train accuracy et F1")
-    parser.add_arguments("--dropout", type = float, default = 0.3, help = "dropout percentage for MLP")
-    parser.add_argument("--filter", type=float, nargs=3, help="filter parameters for CNN ")
+    parser.add_argument("--dropout", type = float, default = 0.3, help = "dropout percentage for MLP")
+    parser.add_argument("--filters", type=int, nargs=3, default = (16, 32, 64), help="filter parameters for CNN. Type --filter 16 32 64 for example")
+    parser.add_argument("--n_patches", type = int, default = 7, help = "patch size for transformer")
+    parser.add_argument("--n_blocks", type = int, default = 1, help = "number of blocks for transformer")
+    parser.add_argument("--hidden_d", type = int, default = 256, help = "number of nodes in transformer")
+    parser.add_argument("--n_heads", type = int, default = 8, help = "number of heads in transformer")
+
 
     # "args" will keep in memory the arguments and their values,
     # which can be accessed as "args.data", for example.
