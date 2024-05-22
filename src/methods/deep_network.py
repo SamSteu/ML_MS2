@@ -273,7 +273,7 @@ class Trainer(object):
         self.batch_size = batch_size
 
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.SGD(model.parameters(), lr=self.lr)  ### WRITE YOUR CODE HERE
+        self.optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)  ### WRITE YOUR CODE HERE
 
         self.accuracy_list = accuracy
         self.macrof1_list = macrof1
