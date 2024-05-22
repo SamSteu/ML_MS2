@@ -24,47 +24,6 @@ class MLP(nn.Module):
         x = self.dropout3(x)
         return self.fc4(x)
     
-class MLP_initial(nn.Module):
-    """
-    An MLP network which does classification.
-
-    It should not use any convolutional layers.
-    """
-
-    def __init__(self, input_size, n_classes, dropout_prob=0.5):
-        """
-        Initialize the network.
-        
-        You can add arguments if you want, but WITH a default value, e.g.:
-            __init__(self, input_size, n_classes, my_arg=32)
-        
-        Arguments:
-            input_size (int): size of the input
-            n_classes (int): number of classes to predict
-        """
-        super().__init__()
-
-        self.fc1 = nn.Linear(input_size, 256)
-        self.fc2 = nn.Linear(256, 128)
-        self.fc3 = nn.Linear(128, 64)
-        self.fc4 = nn.Linear(64, n_classes)
-
-
-    def forward(self, x):
-        """
-        Predict the class of a batch of samples with the model.
-
-        Arguments:
-            x (tensor): input batch of shape (N, D)
-        Returns:
-            preds (tensor): logits of predictions of shape (N, C)
-                Reminder: logits are value pre-softmax.
-        """
-        x = x.view(x.size(0), -1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        return self.fc4(x)
 
 
 class CNN(nn.Module):
@@ -114,50 +73,6 @@ class CNN(nn.Module):
         return self.fc2(x)
 
 
-
-class CNN_initial(nn.Module):
-    """
-    A CNN which does classification.
-
-    It should use at least one convolutional layer.
-    """
-
-    def __init__(self, input_channels, n_classes, filters=(16, 32, 64)):
-        """
-        Initialize the network.
-        
-        You can add arguments if you want, but WITH a default value, e.g.:
-            __init__(self, input_channels, n_classes, my_arg=32)
-        
-        Arguments:
-            input_channels (int): number of channels in the input
-            n_classes (int): number of classes to predict
-        """
-        super(CNN, self).__init__()
-        self.conv2d1 = nn.Conv2d(in_channels = input_channels, out_channels = filters[0], kernel_size=3, stride = 1, padding = 1)
-        self.conv2d2 = nn.Conv2d(in_channels = filters[0], out_channels = filters[1], kernel_size=3, stride = 1, padding = 1)
-        self.conv2d3 = nn.Conv2d(in_channels = filters[1], out_channels = filters[2], kernel_size=3, stride = 1, padding = 1)
-        
-        self.fc1 = nn.Linear(in_features = filters[2]*3*3, out_features = 120)
-        self.fc2 = nn.Linear(120, n_classes)
-
-
-    def forward(self, x):
-        """
-        Predict the class of a batch of samples with the model.
-
-        Arguments:
-            x (tensor): input batch of shape (N, Ch, H, W)
-        Returns:
-            preds (tensor): logits of predictions of shape (N, C)
-                Reminder: logits are value pre-softmax.
-        """
-        x = F.max_pool2d(F.relu(self.conv2d1(x)), 2)
-        x = F.max_pool2d(F.relu(self.conv2d2(x)), 2)
-        x = F.max_pool2d(F.relu(self.conv2d3(x)), 2)
-        x = x.reshape((x.shape[0], -1))
-        x = F.relu(self.fc1(x))
-        return self.fc2(x)
 
 
 
