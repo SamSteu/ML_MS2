@@ -205,4 +205,4 @@ def plot_epoch_score(epoch_acc, epoch_f1, titre, acc_train, macrof1_train, acc_t
     plt.plot(np.arange(n), epoch_f1, label = "F1 score")
     #plt.xticks(np.arange(n))
     plt.legend()
-    plt.show()
+    plt.savefig("graph_scores\\"+ titre)
