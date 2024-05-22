@@ -75,7 +75,7 @@ def main(args):
 
 
     # Dimensionality reduction (MS2)
-    if args.use_pca:
+    if args.use_pca and args.nn_type == "mlp":
         print("Using PCA")
         pca_obj = PCA(d=args.pca_d)
         ### WRITE YOUR CODE HERE: use the PCA object to reduce the dimensionality of the data
@@ -94,7 +94,7 @@ def main(args):
     # Note: you might need to reshape the data depending on the network you use!
     n_classes = get_n_classes(ytrain)
     if args.nn_type == "mlp":
-        model = MLP(xtrain.shape[1], n_classes)
+        model = MLP(xtrain.shape[1], n_classes, dropout_prob=args.dropout)
     
     elif args.nn_type == "cnn" :
         model = CNN(1, n_classes)  #(input_channels, n_classes, filters=(16, 32, 64))
@@ -108,7 +108,7 @@ def main(args):
         xtrain = xtrain.astype(np.float32).reshape(xtrain.shape[0], 1, 28, -1)
         xtest = xtest.astype(np.float32).reshape(xtest.shape[0], 1, 28, -1)
         #VALEURS DES PARAMS A AJUSTER
-        model = MyViT((1, 28, 28), n_patches = 7, n_blocks = 6, hidden_d = 256, n_heads = 8, out_d =10)
+        model = MyViT((1, 28, 28), n_patches = 7, n_blocks = 1, hidden_d = 256, n_heads = 8, out_d =10)
 
     summary(model)
 
@@ -181,6 +181,8 @@ if __name__ == '__main__':
     #our arguments :
     parser.add_argument("--val_set", type = float, default = 0.8, help = "percentage of validation set")
     parser.add_argument("--title", type = str, default = "sans titre", help = "titre pour plot train accuracy et F1")
+    parser.add_arguments("--dropout", type = float, default = 0.3, help = "dropout percentage for MLP")
+    parser.add_argument("--filter", type=float, nargs=3, help="filter parameters for CNN ")
 
     # "args" will keep in memory the arguments and their values,
     # which can be accessed as "args.data", for example.

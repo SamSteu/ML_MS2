@@ -8,7 +8,7 @@ from src.utils import accuracy_fn, onehot_to_label, macrof1_fn
 ## MS2
 
 class MLP(nn.Module):
-    def __init__(self, input_size, n_classes, dropout_prob=0.5):
+    def __init__(self, input_size, n_classes, dropout_prob=0.3):
         super().__init__()
         self.fc1 = nn.Linear(input_size, 256)
         self.fc2 = nn.Linear(256, 128)
