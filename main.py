@@ -79,11 +79,11 @@ def main(args):
         print("Using PCA")
         pca_obj = PCA(d=args.pca_d)
         ### WRITE YOUR CODE HERE: use the PCA object to reduce the dimensionality of the data
-        #exvar = pca_obj.find_principal_components
+        exvar = pca_obj.find_principal_components(xtrain)
     
-        #xtrain = pca_obj.reduce_dimension(xtrain)
-        #print(xtrain.shape)
-        #print(f'The total variance explained by the first {args.pca_d} principal components is {exvar:.3f} %')
+        xtrain = pca_obj.reduce_dimension(xtrain)
+        print(xtrain.shape)
+        print(f'The total variance explained by the first {args.pca_d} principal components is {exvar} %')
 
     ## 3. Initialize the method you want to use.
 
