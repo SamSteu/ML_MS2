@@ -1,5 +1,5 @@
 import numpy as np 
-
+import matplotlib.pyplot as plt
 
 # Generaly utilies
 ##################
@@ -112,3 +112,94 @@ def mse_fn(pred,gt):
     loss = (pred-gt)**2
     loss = np.mean(loss)
     return loss
+
+
+# Plotting function
+#############
+
+def visualize_histogram(labels_train, labels_test):
+    class_names = ['0 Top/T-Shirt', '1 Trouser', '2 Pullover', '3 Dress', '4 Coat', '5 Sandal', '6 Shirt', '7 Sneaker', '8 Bag', '9 Ankle Boot']
+    n_classes = get_n_classes(labels_train)
+    
+    fig, axs = plt.subplots(2, 1, figsize=(10, 8))
+    fig.suptitle('Number of items in each clothing category')
+
+    # train data histogram
+    axs[0].bar(np.arange(n_classes), np.bincount(labels_train))
+    axs[0].set_title('Training data')
+    axs[0].set_ylabel('Count')
+    axs[0].set_xticks(np.arange(n_classes))
+    axs[0].set_xticklabels(class_names, rotation=45, ha="right")
+    axs[0].grid(True)
+    axs[0].set_axisbelow(True)
+
+    # test data histogram
+    axs[1].bar(np.arange(n_classes), np.bincount(labels_test))
+    axs[1].set_title('Validation set data')
+    axs[1].set_ylabel('Count')
+    axs[1].set_xticks(np.arange(n_classes))
+    axs[1].set_xticklabels(class_names, rotation=45, ha="right")
+    axs[1].grid(True)
+    axs[1].set_axisbelow(True)
+
+    fig.subplots_adjust(hspace=0.5)
+    plt.show()
+
+
+
+def ROC_curve(probas, true, name) :
+    plt.figure(figsize=(9,4))
+    plt.title(f"ROC curve of {name}")
+    plt.ylabel("True Positive rate")
+    plt.xlabel("False Positive rate")
+    tresholdsSet = np.arange(0, 1, 0.1)
+    areas = 0
+
+    for item in range(probas.shape[1]) :
+        X_candidates = []
+        Y_candidates = []
+        for treshold in tresholdsSet :
+            P = np.sum(true[:, item])
+            N = true.shape[0] - P
+
+            oneColumnPredicted = probas[:, item]
+            oneColumnPredicted = np.where(oneColumnPredicted >= treshold, 1, 0)
+
+            oneColumnTrue = true[:, item]
+
+            TP = np.sum((oneColumnPredicted == 1) & (oneColumnTrue == 1))
+            FP = np.sum((oneColumnPredicted == 1) & (oneColumnTrue == 0))
+            FN = np.sum((oneColumnPredicted == 0) & (oneColumnTrue == 1))
+            TN = np.sum((oneColumnPredicted == 0) & (oneColumnTrue == 0))
+
+            TPR = TP / float(P)
+            FPR = FP / float(N)
+
+
+            X_candidates.append(FPR)
+            Y_candidates.append(TPR)
+
+        areas -= np.trapz(Y_candidates, X_candidates)
+        plt.plot(X_candidates, Y_candidates)
+
+
+    plt.plot(np.arange(0, 1.1, 0.1), np.arange(0, 1.1, 0.1), '--', color = "gray", label = 'y = x')
+    areas /= float(probas.shape[1])
+    plt.text(0.5, 0.0, f'AUC = {areas}', ha='center')
+    plt.legend()
+    plt.show()
+
+
+def plot_epoch_score(epoch_acc, epoch_f1):
+    print("Scores during training phase")
+    n = len(epoch_acc)
+    plt.figure(figsize=(9,4))
+    plt.title("Scores during training phase for each epoch")
+    plt.ylabel("Score [%]")
+    plt.xlabel("Epoch number")
+
+    plt.plot(np.arange(n), epoch_acc, label = "Accuracy")
+    plt.plot(np.arange(n), epoch_f1, label = "F1 score")
+    #plt.xticks(np.arange(n))
+    plt.legend()
+    plt.show()
