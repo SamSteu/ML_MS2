@@ -115,9 +115,7 @@ def main(args):
 
     # Trainer object
     print("starting instantiate Trainer...")
-    accuracy_list = []
-    macrof1_list = []
-    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size, accuracy=accuracy_list, macrof1=macrof1_list)
+    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size)
     print("instantiated Trainer !\n")
 
 
@@ -129,7 +127,7 @@ def main(args):
     print("fitted Trainer !\n")
 
     #plot les accuracies pour voir l'évolution au cours des epochs
-    plot_epoch_score(accuracy_list, macrof1_list)
+    plot_epoch_score(method_obj.accuracy_list, method_obj.macrof1_list)
 
 
     # Predict on unseen data
