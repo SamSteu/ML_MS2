@@ -190,11 +190,14 @@ def ROC_curve(probas, true, name) :
     plt.show()
 
 
-def plot_epoch_score(epoch_acc, epoch_f1):
+def plot_epoch_score(epoch_acc, epoch_f1, titre, acc_train, macrof1_train, acc_test, macrof1_test):
     print("Scores during training phase")
     n = len(epoch_acc)
     plt.figure(figsize=(9,4))
-    plt.title("Scores during training phase for each epoch")
+    plt.title("Scores during training phase for each epoch :\n" + 
+            titre +"\n" +
+            f"Train set: accuracy = {acc_train:.3f}% - F1-score = {macrof1_train:.6f}\n" +
+            f"Validation set:  accuracy = {acc_test:.3f}% - F1-score = {macrof1_test:.6f}") 
     plt.ylabel("Score [%]")
     plt.xlabel("Epoch number")
 

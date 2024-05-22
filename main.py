@@ -125,8 +125,6 @@ def main(args):
     preds_train = method_obj.fit(xtrain, ytrain)
     print("fitted Trainer !\n")
 
-    #plot les accuracies pour voir l'évolution au cours des epochs
-    plot_epoch_score(method_obj.accuracy_list, method_obj.macrof1_list)
 
 
     # Predict on unseen data
@@ -136,21 +134,24 @@ def main(args):
 
 
     ## Report results: performance on train and valid/test sets
-    acc = accuracy_fn(preds_train, ytrain)
+    acc_train = accuracy_fn(preds_train, ytrain)
     print(ytrain.shape)
-    macrof1 = macrof1_fn(preds_train, ytrain)
-    print(f"\nTrain set: accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
+    macrof1_train = macrof1_fn(preds_train, ytrain)
+    print(f"\nTrain set: accuracy = {acc_train:.3f}% - F1-score = {macrof1_train:.6f}")
 
     ## As there are no test dataset labels, check your model accuracy on validation dataset.
     # You can check your model performance on test set by submitting your test set predictions on the AIcrowd competition.
-    acc = accuracy_fn(preds, ytest)         #j'ai remplacé, avant c'était xtest
-    macrof1 = macrof1_fn(preds, ytest)      #idem
-    print(f"Validation set:  accuracy = {acc:.3f}% - F1-score = {macrof1:.6f}")
+    acc_test = accuracy_fn(preds, ytest)         #j'ai remplacé, avant c'était xtest
+    macrof1_test = macrof1_fn(preds, ytest)      #idem
+    print(f"Validation set:  accuracy = {acc_test:.3f}% - F1-score = {macrof1_test:.6f}")
 
 
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
 
     # Ce serait cool d'ajouter ROC curve, Confusion matrix commme pour le MS1
+
+    #plot les accuracies pour voir l'évolution au cours des epochs
+    plot_epoch_score(method_obj.accuracy_list, method_obj.macrof1_list, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
 
 
 
@@ -179,7 +180,7 @@ if __name__ == '__main__':
     
     #our arguments :
     parser.add_argument("--val_set", type = float, default = 0.8, help = "percentage of validation set")
-
+    parser.add_argument("--title", type = str, default = "sans titre", help = "titre pour plot train accuracy et F1")
 
     # "args" will keep in memory the arguments and their values,
     # which can be accessed as "args.data", for example.
