@@ -5,7 +5,7 @@ from torchinfo import summary
 from src.data import load_data
 from src.methods.pca import PCA
 from src.methods.deep_network import MLP, CNN, Trainer, MyViT
-from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes
+from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes, ROC_curve, visualize_histogram, plot_epoch_score
 
 import copy
 import torch
@@ -116,7 +116,7 @@ def main(args):
     print("starting instantiate Trainer...")
     accuracy_list = []
     macrof1_list = []
-    method_obj = Trainer(model, accuracy_list, macrof1_list, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size)
+    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size, accuracy=accuracy_list, macrof1=macrof1_list)
     print("instantiated Trainer !\n")
 
 

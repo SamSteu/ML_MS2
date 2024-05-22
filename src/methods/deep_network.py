@@ -342,7 +342,7 @@ class Trainer(object):
     It will also serve as an interface between numpy and pytorch.
     """
 
-    def __init__(self, model, accuracy_list, macrof1_list, lr, epochs, batch_size):
+    def __init__(self, model, lr, epochs, batch_size, accuracy=[], macrof1=[]):
         """
         Initialize the trainer object for a given model.
 
@@ -360,8 +360,8 @@ class Trainer(object):
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = torch.optim.SGD(model.parameters(), lr=self.lr)  ### WRITE YOUR CODE HERE
 
-        self.accuracy_list = accuracy_list
-        self.macrof1_list = macrof1_list
+        self.accuracy_list = accuracy
+        self.macrof1_list = macrof1
 
 
     def train_all(self, dataloader):
