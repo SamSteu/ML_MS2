@@ -5,7 +5,7 @@ from torchinfo import summary
 from src.data import load_data
 from src.methods.pca import PCA
 from src.methods.deep_network import MLP, CNN, Trainer, MyViT
-from src.utils import normalize_fn, append_bias_term, accuracy_fn, macrof1_fn, get_n_classes, ROC_curve, visualize_histogram, plot_epoch_score
+from src.utils import *
 
 import copy
 import torch
@@ -148,10 +148,15 @@ def main(args):
 
     ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
 
-    # Ce serait cool d'ajouter ROC curve, Confusion matrix commme pour le MS1
-
     #plot les accuracies pour voir l'évolution au cours des epochs
     plot_epoch_score(method_obj.accuracy_list, method_obj.macrof1_list, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
+    
+    cm = confusion_matrix(ytest, preds)
+    print("Confusion Matrix:")
+    print(cm)
+
+    fpr, tpr, thresholds = roc_curve(ytest, preds, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
+
 
 
 

@@ -298,6 +298,7 @@ class Trainer(object):
             correct = 0
             total = 0
             self.model.eval()
+            
             # Disable gradient calculation
             with torch.no_grad():
                 for batch in dataloader:
