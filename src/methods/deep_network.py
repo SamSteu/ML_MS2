@@ -25,6 +25,30 @@ class MLP(nn.Module):
         return self.fc4(x)
     
 
+class MLP2_plus_performant(nn.Module):
+    '''
+    Multilayer Perceptron.
+    '''
+    
+    def __init__(self, input_size, n_classes, dropout_prob=0.3):
+        super().__init__()
+        self.layers = nn.Sequential(
+            nn.Flatten(),
+            nn.Linear(input_size, 256),
+            nn.BatchNorm1d(256),
+            nn.ReLU(),
+            nn.Linear(256, 128),
+            nn.BatchNorm1d(128),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, n_classes))
+
+
+    def forward(self, x):
+        '''Forward pass'''
+        return self.layers(x)
+
 
 class CNN(nn.Module):
     """

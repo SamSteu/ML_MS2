@@ -192,6 +192,7 @@ def roc_curve(y_true, y_score, titre, acc_train, macrof1_train, acc_test, macrof
     
     # Calculate TPR and FPR at each threshold
     for i, threshold in enumerate(thresholds):
+        
         y_pred = y_score >= threshold
         tp = np.sum((y_pred == 1) & (y_true == pos_label))
         fp = np.sum((y_pred == 1) & (y_true != pos_label))
@@ -203,7 +204,7 @@ def roc_curve(y_true, y_score, titre, acc_train, macrof1_train, acc_test, macrof
 
 
     # Plotting the ROC curve
-    plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(11, 6))
     plt.plot(fpr, tpr, marker='o', linestyle='-', color='b')
     plt.plot([0, 1], [0, 1], linestyle='--', color='r')
     plt.xlabel('False Positive Rate')
