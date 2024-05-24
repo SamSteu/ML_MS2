@@ -36,7 +36,7 @@ class MLP(nn.Module):
 
 
 
-class CNN_a_tester_si_il_est_meilleur_ou_pas(nn.Module):
+class CNN(nn.Module):
     """
     A CNN which does classification on the Fashion MNIST dataset.
     """
@@ -91,7 +91,7 @@ class CNN_a_tester_si_il_est_meilleur_ou_pas(nn.Module):
 
 
 
-class CNN(nn.Module):
+class CNN_initial(nn.Module):
     """
     A CNN which does classification.
 
