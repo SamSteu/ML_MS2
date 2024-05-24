@@ -7,39 +7,24 @@ from src.utils import accuracy_fn, onehot_to_label, macrof1_fn
 
 ## MS2
 
-class MLP2(nn.Module):
-    def __init__(self, input_size, n_classes, dropout_prob=0.3):
-        super().__init__()
-        self.fc1 = nn.Linear(input_size, 256)
-        self.fc2 = nn.Linear(256, 128)
-        self.fc3 = nn.Linear(128, 64)
-        self.dropout3 = nn.Dropout(dropout_prob)
-        self.fc4 = nn.Linear(64, n_classes)
-
-    def forward(self, x):
-        x = x.view(x.size(0), -1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
-        x = self.dropout3(x)
-        return self.fc4(x)
-    
-
+ 
 class MLP(nn.Module):
     '''
     Multilayer Perceptron.
     '''
     
-    def __init__(self, input_size, n_classes, dropout_prob=0.3):
+    def __init__(self, input_size, n_classes, dropout_prob=0.5):
         super().__init__()
         self.layers = nn.Sequential(
             nn.Flatten(),
             nn.Linear(input_size, 256),
             nn.BatchNorm1d(256),
             nn.ReLU(),
+            nn.Dropout(dropout_prob),
             nn.Linear(256, 128),
             nn.BatchNorm1d(128),
             nn.ReLU(),
+            nn.Dropout(dropout_prob),
             nn.Linear(128, 64),
             nn.ReLU(),
             nn.Linear(64, n_classes))
@@ -50,7 +35,63 @@ class MLP(nn.Module):
         return self.layers(x)
 
 
+
 class CNN(nn.Module):
+    """
+    A CNN which does classification on the Fashion MNIST dataset.
+    """
+
+    def __init__(self, input_channels, n_classes, filters=(32, 64, 128), dropout_rate=0.5):
+        """
+        Initialize the network.
+
+        Arguments:
+            input_channels (int): number of channels in the input
+            n_classes (int): number of classes to predict
+            filters (tuple): number of filters for each convolutional layer
+            dropout_rate (float): dropout rate to use in Dropout layers
+        """
+        super(CNN, self).__init__()
+        
+        self.conv1 = nn.Conv2d(in_channels=input_channels, out_channels=filters[0], kernel_size=3, stride=1, padding=1)
+        self.bn1 = nn.BatchNorm2d(filters[0])
+        self.conv2 = nn.Conv2d(in_channels=filters[0], out_channels=filters[1], kernel_size=3, stride=1, padding=1)
+        self.bn2 = nn.BatchNorm2d(filters[1])
+        self.conv3 = nn.Conv2d(in_channels=filters[1], out_channels=filters[2], kernel_size=3, stride=1, padding=1)
+        self.bn3 = nn.BatchNorm2d(filters[2])
+        
+        self.fc1 = nn.Linear(filters[2] * 3 * 3, 256)  # Adjust according to the downsampled feature map size
+        self.fc2 = nn.Linear(256, n_classes)
+        
+        self.dropout = nn.Dropout(dropout_rate)
+
+    def forward(self, x):
+        """
+        Predict the class of a batch of samples with the model.
+
+        Arguments:
+            x (tensor): input batch of shape (N, Ch, H, W)
+        Returns:
+            preds (tensor): logits of predictions of shape (N, C)
+                Reminder: logits are value pre-softmax.
+        """
+        x = F.relu(self.bn1(self.conv1(x)))
+        x = F.max_pool2d(x, 2)
+        x = F.relu(self.bn2(self.conv2(x)))
+        x = F.max_pool2d(x, 2)
+        x = F.relu(self.bn3(self.conv3(x)))
+        x = F.max_pool2d(x, 2)
+        
+        x = x.view(x.size(0), -1)  # Flatten the tensor
+        x = F.relu(self.fc1(x))
+        x = self.dropout(x)  # Apply dropout
+        x = self.fc2(x)
+        
+        return x
+
+
+
+class CNNinitial(nn.Module):
     """
     A CNN which does classification.
 
