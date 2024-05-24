@@ -91,6 +91,10 @@ def main(args):
     # Neural Networks (MS2)
 
     # Prepare the model (and data) for Pytorch
+    """A AJOUTER POUR INCLURE LES GPU quand on instencie une classe
+    device = torch.device(args.device)
+    model = MLP(input_size, n_classes).to(device)"""
+
     # Note: you might need to reshape the data depending on the network you use!
     n_classes = get_n_classes(ytrain)
     if args.nn_type == "mlp":
@@ -114,7 +118,7 @@ def main(args):
 
     # Trainer object
     print("starting instantiate Trainer...")
-    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size)
+    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size, optimizer_name = args.optimizer)
     print("instantiated Trainer !\n")
 
 
@@ -183,13 +187,14 @@ if __name__ == '__main__':
     parser.add_argument('--test', action="store_true",
                         help="train on whole training data and evaluate on the test data, otherwise use a validation set")
     
-    #our arguments :
+    #our added arguments :
+    parser.add_argument('--optimizer', type=str, default="Adam", help="Optimizer to use for the training, it can be 'Adam' | 'SGD'")
     parser.add_argument("--val_set", type = float, default = 0.8, help = "percentage of validation set")
     parser.add_argument("--title", type = str, default = "sans titre", help = "titre pour plot train accuracy et F1")
     parser.add_argument("--dropout", type = float, default = 0.3, help = "dropout percentage for MLP")
     parser.add_argument("--filters", type=int, nargs=3, default = (16, 32, 64), help="filter parameters for CNN. Type --filter 16 32 64 for example")
-    parser.add_argument("--n_patches", type = int, default = 7, help = "patch size for transformer")
-    parser.add_argument("--n_blocks", type = int, default = 1, help = "number of blocks for transformer")
+    parser.add_argument("--n_patches", type = int, default = 14, help = "patch size for transformer")
+    parser.add_argument("--n_blocks", type = int, default = 2, help = "number of blocks for transformer")
     parser.add_argument("--hidden_d", type = int, default = 256, help = "number of nodes in transformer")
     parser.add_argument("--n_heads", type = int, default = 8, help = "number of heads in transformer")
 

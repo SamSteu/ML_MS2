@@ -36,7 +36,7 @@ class MLP(nn.Module):
 
 
 
-class CNN(nn.Module):
+class CNN_a_tester_si_il_est_meilleur_ou_pas(nn.Module):
     """
     A CNN which does classification on the Fashion MNIST dataset.
     """
@@ -91,7 +91,7 @@ class CNN(nn.Module):
 
 
 
-class CNNinitial(nn.Module):
+class CNN(nn.Module):
     """
     A CNN which does classification.
 
@@ -323,7 +323,7 @@ class Trainer(object):
     It will also serve as an interface between numpy and pytorch.
     """
 
-    def __init__(self, model, lr, epochs, batch_size):
+    def __init__(self, model, lr, epochs, batch_size, optimizer_name):
         """
         Initialize the trainer object for a given model.
 
@@ -339,7 +339,14 @@ class Trainer(object):
         self.batch_size = batch_size
 
         self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)  ### WRITE YOUR CODE HERE
+
+        if optimizer_name == 'SGD':
+            self.optimizer = torch.optim.SGD(model.parameters(), lr=self.lr)
+        elif optimizer_name == 'Adam':
+            self.optimizer = torch.optim.Adam(model.parameters(), lr=self.lr)
+        else:
+            raise ValueError(f"Optimizer {optimizer_name} not supported")
+
 
         self.accuracy_list = []
         self.macrof1_list = []
