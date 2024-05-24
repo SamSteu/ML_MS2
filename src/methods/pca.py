@@ -44,7 +44,7 @@ class PCA(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        training_data = np.divide(training_data, 255)  #pas dans la série mais trouvé sur internet
+    
 
         self.mean = np.mean(training_data, axis=0)
         training_data = training_data - self.mean
@@ -53,9 +53,8 @@ class PCA(object):
         eigvals, eigvecs = np.linalg.eigh(C)
 
         #sorting our eigvals and select the corresponding eigvecs
-        sorted_indices = np.argsort(eigvals)[::-1]
-        eigvals = eigvals[sorted_indices]
-        eigvecs = eigvecs[:, sorted_indices]
+        eigvals = eigvals[:: -1]
+        eigvecs = eigvecs[:, ::-1]
 
         self.W = eigvecs[:, :self.d]  # Dxd matrix
         eg = eigvals[:self.d]    # d values
@@ -79,7 +78,7 @@ class PCA(object):
         #### WRITE YOUR CODE HERE!
         ###
         ##
-        self.find_principal_components(data)
+        data = data - self.mean
         # project the data using W
         data_reduced = data @ self.W
         return data_reduced

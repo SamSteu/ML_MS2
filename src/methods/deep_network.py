@@ -7,7 +7,7 @@ from src.utils import accuracy_fn, onehot_to_label, macrof1_fn
 
 ## MS2
 
-class MLP(nn.Module):
+class MLP2(nn.Module):
     def __init__(self, input_size, n_classes, dropout_prob=0.3):
         super().__init__()
         self.fc1 = nn.Linear(input_size, 256)
@@ -25,7 +25,7 @@ class MLP(nn.Module):
         return self.fc4(x)
     
 
-class MLP2_plus_performant(nn.Module):
+class MLP(nn.Module):
     '''
     Multilayer Perceptron.
     '''

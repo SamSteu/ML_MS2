@@ -80,7 +80,7 @@ def main(args):
         pca_obj = PCA(d=args.pca_d)
         ### WRITE YOUR CODE HERE: use the PCA object to reduce the dimensionality of the data
         exvar = pca_obj.find_principal_components(xtrain)
-        exvar2 = pca_obj.find_principal_components(xtest)
+        
         xtrain = pca_obj.reduce_dimension(xtrain)
         xtest = pca_obj.reduce_dimension(xtest)
         print(xtrain.shape)
