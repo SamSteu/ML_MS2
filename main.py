@@ -159,7 +159,11 @@ def main(args):
     print("Confusion Matrix:")
     print(cm)
 
-    fpr, tpr, thresholds = roc_curve(ytest, preds, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
+    #plot ROC
+    print("plot ROC")
+    preds_logits = method_obj.get_logits(xtest)
+    softmax_output = np.exp(preds_logits) / np.sum(np.exp(preds_logits), axis=1, keepdims=True)
+    ROC2(ytest, softmax_output, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
 
 
 

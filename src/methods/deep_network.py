@@ -509,3 +509,19 @@ class Trainer(object):
 
         # We return the labels after transforming them into numpy array.
         return pred_labels.cpu().numpy()
+    
+    def get_logits(self, data) :
+        self.model.eval()
+        dataset = TensorDataset(torch.from_numpy(data).float())
+        dataloader = DataLoader(dataset, batch_size=self.batch_size, shuffle=False)
+        
+        all_logits = []
+
+        with torch.no_grad():
+            for batch in dataloader:
+                x = batch[0]
+                outputs = self.model(x)
+                all_logits.append(outputs)
+
+        all_logits = torch.cat(all_logits)
+        return all_logits.cpu().numpy()

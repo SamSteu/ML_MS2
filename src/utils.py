@@ -279,3 +279,53 @@ def confusion_matrix(y_true, y_pred, labels=None):
         cm[label_to_index[yt], label_to_index[yp]] += 1
     
     return cm
+
+def ROC2(y_true, y_score, titre, acc_train, macrof1_train, acc_test, macrof1_test) :
+    C = get_n_classes(y_true)
+    plt.figure(figsize=(11, 10))
+    y_true = label_to_onehot(y_true)
+    tresholds = np.arange(0, 1.01, 0.01)
+    auc = []
+
+    for i in range(C) :
+        preds = y_score[:, i]
+        true = y_true[:, i]
+
+        tpr = []
+        fpr = []
+
+        for t in tresholds :
+            preds_bool = (preds >= t).astype(int)
+            TP = np.sum((true == 1) & (preds_bool == 1))
+            FP = np.sum((true == 0) & (preds_bool == 1))
+            TN = np.sum((true == 0) & (preds_bool == 0))
+            FN = np.sum((true == 1) & (preds_bool == 0))
+            oneTPR = TP / (TP + FN) if (TP + FN) != 0 else 0
+            oneFPR = FP / (FP + TN) if (FP + TN) != 0 else 0
+            tpr.append(oneTPR)
+            fpr.append(oneFPR)
+
+        legend = f"ROC for class {i}"
+        auc.append(np.trapz(tpr, fpr))
+        plt.plot(fpr, tpr, label = legend)
+
+    final_auc = np.mean(np.array(auc))
+
+    # Plotting the ROC curve
+    plt.plot([0, 1], [0, 1], linestyle='--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title("ROC curve for :\n" + 
+            titre +"\n" +
+            f"Train set: accuracy = {acc_train:.3f}% - F1-score = {macrof1_train:.6f}\n" +
+            f"Validation set:  accuracy = {acc_test:.3f}% - F1-score = {macrof1_test:.6f}\n" +
+            f"AUC = {-final_auc}") 
+    plt.legend(loc = 'best')
+    plt.grid()
+    
+    base_filename = "ROC_" + titre
+    extension = ".png"
+    output_dir = "graph_scores"
+    unique_filename = get_unique_filename(output_dir, base_filename, extension)
+
+    plt.savefig(unique_filename)
