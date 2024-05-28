@@ -137,33 +137,39 @@ def main(args):
     print("finished predict Trainer !\n")
 
 
+
+ 
     ## Report results: performance on train and valid/test sets
     acc_train = accuracy_fn(preds_train, ytrain)
-    print(ytrain.shape)
     macrof1_train = macrof1_fn(preds_train, ytrain)
     print(f"\nTrain set: accuracy = {acc_train:.3f}% - F1-score = {macrof1_train:.6f}")
 
-    ## As there are no test dataset labels, check your model accuracy on validation dataset.
-    # You can check your model performance on test set by submitting your test set predictions on the AIcrowd competition.
-    acc_test = accuracy_fn(preds, ytest)         #j'ai remplacé, avant c'était xtest
-    macrof1_test = macrof1_fn(preds, ytest)      #idem
-    print(f"Validation set:  accuracy = {acc_test:.3f}% - F1-score = {macrof1_test:.6f}")
+    #visualize_histogram(ytrain, ytest)
+    #visualize_histogram(preds_train, preds)
 
 
-    ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
+    if not args.test:
+        ## As there are no test dataset labels, check your model accuracy on validation dataset.
+        # You can check your model performance on test set by submitting your test set predictions on the AIcrowd competition.
+        acc_test = accuracy_fn(preds, ytest)         #j'ai remplacé, avant c'était xtest
+        macrof1_test = macrof1_fn(preds, ytest)      #idem
+        print(f"Validation set:  accuracy = {acc_test:.3f}% - F1-score = {macrof1_test:.6f}")
 
-    #plot les accuracies pour voir l'évolution au cours des epochs
-    plot_epoch_score(method_obj.accuracy_list, method_obj.macrof1_list, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
-    
-    cm = confusion_matrix(ytest, preds)
-    print("Confusion Matrix:")
-    print(cm)
 
-    #plot ROC
-    print("plot ROC")
-    preds_logits = method_obj.get_logits(xtest)
-    softmax_output = np.exp(preds_logits) / np.sum(np.exp(preds_logits), axis=1, keepdims=True)
-    ROC2(ytest, softmax_output, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
+        ### WRITE YOUR CODE HERE if you want to add other outputs, visualization, etc.
+
+        #plot les accuracies pour voir l'évolution au cours des epochs
+        plot_epoch_score(method_obj.accuracy_list, method_obj.macrof1_list, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
+        
+        cm = confusion_matrix(ytest, preds)
+        print("Confusion Matrix:")
+        print(cm)
+
+        #plot ROC
+        print("plot ROC")
+        preds_logits = method_obj.get_logits(xtest)
+        softmax_output = np.exp(preds_logits) / np.sum(np.exp(preds_logits), axis=1, keepdims=True)
+        ROC(ytest, softmax_output, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
 
 
 

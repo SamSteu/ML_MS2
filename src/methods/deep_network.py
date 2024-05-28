@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
 from src.utils import accuracy_fn, onehot_to_label, macrof1_fn
-import tqdm
+from tqdm import tqdm
 
 ## MS2
 
@@ -359,7 +359,7 @@ class Trainer(object):
         
 
         self.model.train()
-        for it, batch in enumerate(dataloader):
+        for it, batch in tqdm(enumerate(dataloader)):
             # 5.1 Load a batch, break it down in images and targets.
             x, y = batch
 
@@ -374,7 +374,7 @@ class Trainer(object):
             
             # 5.6 Zero-out the accumulated gradients.
             self.optimizer.zero_grad() 
-        return dataloader
+        return dataloader                       
 
 
 

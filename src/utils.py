@@ -160,71 +160,6 @@ def get_unique_filename(directory, base_filename, extension):
 
 
 
-def roc_curve(y_true, y_score, titre, acc_train, macrof1_train, acc_test, macrof1_test, pos_label=1):
-    """
-    Compute Receiver operating characteristic (ROC) curve.
-    
-    Parameters:
-    y_true (list or array-like): True binary labels.
-    y_score (list or array-like): Target scores, can either be probability estimates of the positive class,
-                                  confidence values, or binary decisions.
-    pos_label (int): Label considered as positive and others are considered negative.
-    
-    Returns:
-    fpr (array): False positive rates.
-    tpr (array): True positive rates.
-    thresholds (array): Thresholds on the decision function used to compute FPR and TPR.
-    """
-    # Convert input to numpy arrays
-    y_true = np.array(y_true)
-    y_score = np.array(y_score)
-
-    # Sort scores and corresponding true values
-    desc_score_indices = np.argsort(y_score)[::-1]
-    y_true = y_true[desc_score_indices]
-    y_score = y_score[desc_score_indices]
-    
-    # Unique threshold values
-    thresholds = np.unique(y_score)
-    thresholds = np.append(thresholds, thresholds[-1] + 1)  # Ensure the last threshold is unique and larger
-    tpr = np.zeros_like(thresholds, dtype=float)
-    fpr = np.zeros_like(thresholds, dtype=float)
-    
-    # Calculate TPR and FPR at each threshold
-    for i, threshold in enumerate(thresholds):
-        
-        y_pred = y_score >= threshold
-        tp = np.sum((y_pred == 1) & (y_true == pos_label))
-        fp = np.sum((y_pred == 1) & (y_true != pos_label))
-        fn = np.sum((y_pred == 0) & (y_true == pos_label))
-        tn = np.sum((y_pred == 0) & (y_true != pos_label))
-        
-        tpr[i] = tp / (tp + fn) if (tp + fn) > 0 else 0
-        fpr[i] = fp / (fp + tn) if (fp + tn) > 0 else 0
-
-
-    # Plotting the ROC curve
-    plt.figure(figsize=(11, 6))
-    plt.plot(fpr, tpr, marker='o', linestyle='-', color='b')
-    plt.plot([0, 1], [0, 1], linestyle='--', color='r')
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title("ROC curve for :\n" + 
-            titre +"\n" +
-            f"Train set: accuracy = {acc_train:.3f}% - F1-score = {macrof1_train:.6f}\n" +
-            f"Validation set:  accuracy = {acc_test:.3f}% - F1-score = {macrof1_test:.6f}") 
-    plt.grid()
-    
-    base_filename = "ROC_" + titre
-    extension = ".png"
-    output_dir = "graph_scores"
-    unique_filename = get_unique_filename(output_dir, base_filename, extension)
-
-    plt.savefig(unique_filename)
-    
-    return fpr, tpr, thresholds
-
-
 def plot_epoch_score(epoch_acc, epoch_f1, titre, acc_train, macrof1_train, acc_test, macrof1_test):
     print("Scores during training phase")
     n = len(epoch_acc)
@@ -280,7 +215,7 @@ def confusion_matrix(y_true, y_pred, labels=None):
     
     return cm
 
-def ROC2(y_true, y_score, titre, acc_train, macrof1_train, acc_test, macrof1_test) :
+def ROC(y_true, y_score, titre, acc_train, macrof1_train, acc_test, macrof1_test) :
     C = get_n_classes(y_true)
     plt.figure(figsize=(11, 10))
     y_true = label_to_onehot(y_true)
