@@ -12,6 +12,7 @@ import torch
 import matplotlib.pyplot as plt
 np.random.seed(100)
 import time
+from tqdm import tqdm
 
 def main(args):
     """
@@ -25,7 +26,12 @@ def main(args):
 
     ## 1. First, we load our data and flatten the images into vectors
     xtrain, xtest, ytrain = load_data(args.data)
+    n_samples = xtrain.shape[0]
 
+
+    class_names = np.array(['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 
+                      'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot'])
+    
     print("xtrain : ", xtrain.shape)
     print("ytrain : ", ytrain.shape)
     print("xtest : ", xtest.shape)
@@ -43,16 +49,9 @@ def main(args):
     std = np.std(xtest)
     xtest = normalize_fn(xtest, means, std)
 
-    #add bias :
-    # à demander aux assistants pour quels deep network on met un biais (car CNN on aura plus du 28x28 ca pose pb)
 
-    #global variables :
-    n_samples = xtrain.shape[0]
-    n_features = xtrain.shape[1]
-
-    # Make a validation set
+    ## 3. Make a validation set
     if not args.test:
-    ### WRITE YOUR CODE HERE
         all_ind = np.arange(n_samples)
         rdm_perm_ind = np.random.permutation(all_ind)
         n_test = int(n_samples * args.val_set)
@@ -70,7 +69,6 @@ def main(args):
     
     
     
-    
     ### WRITE YOUR CODE HERE to do any other data processing
 
 
@@ -79,13 +77,18 @@ def main(args):
         print("Using PCA")
         pca_obj = PCA(d=args.pca_d)
         ### WRITE YOUR CODE HERE: use the PCA object to reduce the dimensionality of the data
-        exvar = pca_obj.find_principal_components(xtrain)
+        mean, weights, exvar = pca_obj.find_principal_components(xtrain)
         
         xtrain = pca_obj.reduce_dimension(xtrain)
         xtest = pca_obj.reduce_dimension(xtest)
         print(xtrain.shape)
         print(f'The total variance explained by the first {args.pca_d} principal components is {exvar} %')
+        
+        if args.pca_d == 81: #condition un peu nulle car hardcodée, à changer
+            plot_PCA_components(mean, weights)
 
+    
+    
     ## 3. Initialize the method you want to use.
 
     # Neural Networks (MS2)
@@ -189,7 +192,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', type=str, default="cpu",
                         help="Device to use for the training, it can be 'cpu' | 'cuda' | 'mps'")
     parser.add_argument('--use_pca', action="store_true", help="use PCA for feature reduction")
-    parser.add_argument('--pca_d', type=int, default=84, help="the number of principal components")
+    parser.add_argument('--pca_d', type=int, default=81, help="the number of principal components")
 
 
     parser.add_argument('--lr', type=float, default=1e-2, help="learning rate for methods with learning rate")

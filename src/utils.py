@@ -146,7 +146,23 @@ def visualize_histogram(labels_train, labels_test):
     fig.subplots_adjust(hspace=0.5)
     plt.show()
 
+def plot_PCA_components(mean, weights):
+    # Visualiser le composant moyen
+    plt.figure()
+    plt.imshow(mean.reshape(28, 28), cmap='gray')
+    plt.title('Mean Clothe')
+    plt.colorbar()
+    plt.show()
 
+    # Visualiser les 10 premiers composants principaux
+    plt.figure(figsize=(8, 20))
+    for i in range(9):
+        plt.subplot(3, 3, i+1)
+        plt.imshow(weights[i].reshape(9, 9), cmap='gray')
+        plt.title(f'Principal Component: {i+1}')
+        plt.colorbar(shrink=0.3)
+    plt.tight_layout(pad=2.0) 
+    plt.show()
 
 
 # Générer un nom de fichier unique

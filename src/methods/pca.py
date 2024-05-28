@@ -19,10 +19,7 @@ class PCA(object):
             d (int): dimensionality of the reduced space
         """
         self.d = d
-        
-        # the mean of the training data (will be computed from the training data and saved to this variable)
-        self.mean = None 
-        # the principal components (will be computed from the training data and saved to this variable)
+        self.mean = None
         self.W = None
 
 
@@ -39,13 +36,6 @@ class PCA(object):
         Returns:
             exvar (float): explained variance of the kept dimensions (in percentage, i.e., in [0,100])
         """
-        ##
-        ###
-        #### WRITE YOUR CODE HERE!
-        ###
-        ##
-    
-
         self.mean = np.mean(training_data, axis=0)
         training_data = training_data - self.mean
 
@@ -62,7 +52,8 @@ class PCA(object):
         # Compute the explained variance
         exvar = np.sum(eg) / np.sum(eigvals) * 100
         
-        return exvar
+        return self.mean, self.W, exvar
+
 
     def reduce_dimension(self, data):
         """
@@ -73,12 +64,8 @@ class PCA(object):
         Returns:
             data_reduced (array): reduced data of shape (N,d)
         """
-        ##
-        ###
-        #### WRITE YOUR CODE HERE!
-        ###
-        ##
         data = data - self.mean
+
         # project the data using W
         data_reduced = data @ self.W
         return data_reduced

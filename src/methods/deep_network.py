@@ -319,7 +319,7 @@ class Trainer(object):
         """
 
         for ep in range(self.epochs):
-            print("train epoch : ", ep, " / ", self.epochs)
+            print("train epoch : ", ep+1, " / ", self.epochs)
             self.train_one_epoch(dataloader, ep)
             
             correct = 0
