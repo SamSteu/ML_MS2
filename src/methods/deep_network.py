@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
 from src.utils import accuracy_fn, onehot_to_label, macrof1_fn
+import tqdm
 
 ## MS2
 
@@ -144,14 +145,15 @@ class MyViTBlock(nn.Module):
         self.mlp = nn.Sequential(
             nn.Linear(hidden_d, mlp_ratio * hidden_d),
             nn.GELU(),
-            nn.Linear(mlp_ratio * hidden_d, hidden_d)
+            #nn.Linear(mlp_ratio * hidden_d, hidden_d),
+            #nn.GELU()
         )
 
     def forward(self, x):
         # MHSA + residual connection.
         out = x + self.mhsa(self.norm1(x))
         # Feedforward + residual connection
-        out = out + self.mlp(self.norm2(out))
+        #out = out + self.mlp(self.norm2(out))
         return out
 
 
@@ -333,15 +335,6 @@ class Trainer(object):
                     correct += (predicted == labels).sum().item()
             
             # Calculate accuracy and F1 score
-
-            """(cf série 11) si on utilise CPU :
-
-                def accuracy(x, y):
-                    x = x.detach().cpu().numpy()
-                    y = y.detach().cpu().numpy()
-                return np.mean(np.argmax(x, axis=1) == y)"""
-
-
             acc = correct / total * 100
             macrof1 = macrof1_fn(predicted, labels)
 
@@ -363,6 +356,7 @@ class Trainer(object):
         Arguments:
             dataloader (DataLoader): dataloader for training data
         """
+        
 
         self.model.train()
         for it, batch in enumerate(dataloader):
@@ -371,20 +365,19 @@ class Trainer(object):
 
             # 5.2 Run forward pass.
             logits = self.model(x) 
-            
             # 5.3 Compute loss (using 'criterion').
             loss = self.criterion(logits, y)
-            
             # 5.4 Run backward pass.
             loss.backward()
-            
             # 5.5 Update the weights using 'optimizer'.
             self.optimizer.step() 
             
             # 5.6 Zero-out the accumulated gradients.
             self.optimizer.zero_grad() 
-
         return dataloader
+
+
+
 
     def predict_torch(self, dataloader):
         """
@@ -419,6 +412,9 @@ class Trainer(object):
 
         return pred_labels
     
+
+
+
     def fit(self, training_data, training_labels):
         """
         Trains the model, returns predicted labels for training data.
@@ -441,6 +437,10 @@ class Trainer(object):
         self.train_all(train_dataloader)
 
         return self.predict(training_data)
+
+
+
+
 
     def predict(self, test_data):
         """

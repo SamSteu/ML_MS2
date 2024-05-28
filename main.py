@@ -179,7 +179,7 @@ if __name__ == '__main__':
     parser.add_argument('--data', default="dataset", type=str, help="path to your dataset")
     parser.add_argument('--nn_type', default="mlp",
                         help="which network architecture to use, it can be 'mlp' | 'transformer' | 'cnn'")
-    parser.add_argument('--nn_batch_size', type=int, default=64, help="batch size for NN training")
+    parser.add_argument('--nn_batch_size', type=int, default=16, help="batch size for NN training")
     parser.add_argument('--device', type=str, default="cpu",
                         help="Device to use for the training, it can be 'cpu' | 'cuda' | 'mps'")
     parser.add_argument('--use_pca', action="store_true", help="use PCA for feature reduction")
@@ -199,8 +199,8 @@ if __name__ == '__main__':
     parser.add_argument("--filters", type=int, nargs=3, default = (16, 32, 64), help="filter parameters for CNN. Type --filter 16 32 64 for example")
     parser.add_argument("--n_patches", type = int, default = 14, help = "patch size for transformer")
     parser.add_argument("--n_blocks", type = int, default = 2, help = "number of blocks for transformer")
-    parser.add_argument("--hidden_d", type = int, default = 256, help = "number of nodes in transformer")
-    parser.add_argument("--n_heads", type = int, default = 8, help = "number of heads in transformer")
+    parser.add_argument("--hidden_d", type = int, default = 128, help = "number of nodes in transformer")
+    parser.add_argument("--n_heads", type = int, default = 2, help = "number of heads in transformer")
 
 
     # "args" will keep in memory the arguments and their values,
