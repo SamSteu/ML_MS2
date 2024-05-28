@@ -35,7 +35,6 @@ class MLP(nn.Module):
         return self.layers(x)
 
 
-
 class CNN(nn.Module):
     """
     A CNN which does classification on the Fashion MNIST dataset.
@@ -90,53 +89,6 @@ class CNN(nn.Module):
         return x
 
 
-
-class CNN_initial(nn.Module):
-    """
-    A CNN which does classification.
-
-    It should use at least one convolutional layer.
-    """
-
-    def __init__(self, input_channels, n_classes, filters=(8, 16, 32)):
-        """
-        Initialize the network.
-        
-        You can add arguments if you want, but WITH a default value, e.g.:
-            __init__(self, input_channels, n_classes, my_arg=32)
-        
-        Arguments:
-            input_channels (int): number of channels in the input
-            n_classes (int): number of classes to predict
-        """
-        super(CNN, self).__init__()
-        print("filter : ", filters)
-        self.conv2d1 = nn.Conv2d(in_channels=input_channels, out_channels=filters[0], kernel_size=3, stride=1, padding=1)
-        self.conv2d2 = nn.Conv2d(in_channels=filters[0], out_channels=filters[1], kernel_size=3, stride=1, padding=1)
-        self.conv2d3 = nn.Conv2d(in_channels=filters[1], out_channels=filters[2], kernel_size=3, stride=1, padding=1)
-        
-        # Adjusting the in_features of the first fully connected layer based on the downsampled size
-        self.fc1 = nn.Linear(in_features=filters[2]*3*3, out_features=64)  # Reduced number of neurons
-        self.fc2 = nn.Linear(64, n_classes)  # Second fully connected layer
-
-    def forward(self, x):
-        """
-        Predict the class of a batch of samples with the model.
-
-        Arguments:
-            x (tensor): input batch of shape (N, Ch, H, W)
-        Returns:
-            preds (tensor): logits of predictions of shape (N, C)
-                Reminder: logits are value pre-softmax.
-        """
-        #Pooling layers after each convolutional layer reduce the size of intermediate features
-        # which decreases the number of parameters in fully connected layers
-        x = F.max_pool2d(F.relu(self.conv2d1(x)), 2)
-        x = F.max_pool2d(F.relu(self.conv2d2(x)), 2)
-        x = F.max_pool2d(F.relu(self.conv2d3(x)), 2)
-        x = x.reshape((x.shape[0], -1))
-        x = F.relu(self.fc1(x))
-        return self.fc2(x)
 
 
 
