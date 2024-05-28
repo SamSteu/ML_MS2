@@ -118,7 +118,7 @@ def main(args):
 
     # Trainer object
     print("starting instantiate Trainer...")
-    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size, optimizer_name = args.optimizer)
+    method_obj = Trainer(model, lr=args.lr, epochs=args.max_iters, batch_size=args.nn_batch_size, optimizer_name = args.optimizer, device = args.device)
     print("instantiated Trainer !\n")
 
 

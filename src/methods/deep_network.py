@@ -277,7 +277,7 @@ class Trainer(object):
     It will also serve as an interface between numpy and pytorch.
     """
 
-    def __init__(self, model, lr, epochs, batch_size, optimizer_name):
+    def __init__(self, model, lr, epochs, batch_size, optimizer_name, device):
         """
         Initialize the trainer object for a given model.
 
@@ -292,6 +292,7 @@ class Trainer(object):
         self.model = model
         self.batch_size = batch_size
 
+        self.device = device
         self.criterion = nn.CrossEntropyLoss()
 
         if optimizer_name == 'SGD':
@@ -329,6 +330,7 @@ class Trainer(object):
             with torch.no_grad():
                 for batch in dataloader:
                     inputs, labels = batch
+                    inputs, labels = inputs.to(self.device), labels.to(self.device)
                     outputs = self.model(inputs)
                     _, predicted = torch.max(outputs, 1)
                     total += labels.size(0)
@@ -362,6 +364,7 @@ class Trainer(object):
         for it, batch in tqdm(enumerate(dataloader)):
             # 5.1 Load a batch, break it down in images and targets.
             x, y = batch
+            x, y = x.to(self.device), y.to(self.device)
 
             # 5.2 Run forward pass.
             logits = self.model(x) 
@@ -403,6 +406,7 @@ class Trainer(object):
         with torch.no_grad():  # Disable gradient calculation
             for batch in dataloader:
                 x = batch[0]  # Get the input data from the batch
+                x = x.to(self.device)  # Move data to device
                 outputs = self.model(x)  # Get the model predictions
                 _, preds = torch.max(outputs, 1)  # Get the predicted class labels
                 pred_labels.append(preds)
@@ -472,6 +476,7 @@ class Trainer(object):
         with torch.no_grad():
             for batch in dataloader:
                 x = batch[0]
+                x = x.to(self.device)
                 outputs = self.model(x)
                 all_logits.append(outputs)
 
