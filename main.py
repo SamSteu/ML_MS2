@@ -83,9 +83,9 @@ def main(args):
         xtest = pca_obj.reduce_dimension(xtest)
         print(xtrain.shape)
         print(f'The total variance explained by the first {args.pca_d} principal components is {exvar} %')
-        #pca_obj.plot_cum_explained_var()
+        pca_obj.plot_cum_explained_var()
         if args.pca_d == 81: #condition un peu nulle car hardcodée, à changer
-            #plot_PCA_components(mean, weights)
+            plot_PCA_components(mean, weights)
 
     
     
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     parser.add_argument('--data', default="dataset", type=str, help="path to your dataset")
     parser.add_argument('--nn_type', default="mlp",
                         help="which network architecture to use, it can be 'mlp' | 'transformer' | 'cnn'")
-    parser.add_argument('--nn_batch_size', type=int, default=16, help="batch size for NN training")
+    parser.add_argument('--nn_batch_size', type=int, default=2, help="batch size for NN training") #16
     parser.add_argument('--device', type=str, default="cpu",
                         help="Device to use for the training, it can be 'cpu' | 'cuda' | 'mps'")
     parser.add_argument('--use_pca', action="store_true", help="use PCA for feature reduction")

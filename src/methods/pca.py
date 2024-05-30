@@ -84,5 +84,6 @@ class PCA(object):
         plt.xlabel('Number of Principal Components')
         plt.ylabel('Cumulative Explained Variance Ratio')
         plt.title('Cumulative Explained Variance Ratio by Principal Component')
+        plt.axhline(y=0.9,color='gray',linestyle='--')
         plt.grid()
         plt.show()
