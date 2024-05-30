@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 ## MS2
 
@@ -21,6 +22,7 @@ class PCA(object):
         self.d = d
         self.mean = None
         self.W = None
+        self.exvar_ratio_vector = []
 
 
     def find_principal_components(self, training_data):
@@ -50,9 +52,11 @@ class PCA(object):
         eg = eigvals[:self.d]    # d values
         
         # Compute the explained variance
-        exvar = np.sum(eg) / np.sum(eigvals) * 100
+        exvar_ratio = np.sum(eg) / np.sum(eigvals) * 100
+
+        self.exvar_ratio_vector = eg / np.sum(eg)
         
-        return self.mean, self.W, exvar
+        return self.mean, self.W, exvar_ratio
 
 
     def reduce_dimension(self, data):
@@ -71,3 +75,14 @@ class PCA(object):
         return data_reduced
         
 
+    def plot_cum_explained_var(self):
+        cumulative_explained_variance = np.cumsum(self.exvar_ratio_vector)
+
+        # Plot cumulative explained variance ratio
+        plt.figure(figsize=(8, 5))
+        plt.plot(range(1, len(cumulative_explained_variance) + 1), cumulative_explained_variance, marker='o', linestyle='--')
+        plt.xlabel('Number of Principal Components')
+        plt.ylabel('Cumulative Explained Variance Ratio')
+        plt.title('Cumulative Explained Variance Ratio by Principal Component')
+        plt.grid()
+        plt.show()

@@ -83,9 +83,9 @@ def main(args):
         xtest = pca_obj.reduce_dimension(xtest)
         print(xtrain.shape)
         print(f'The total variance explained by the first {args.pca_d} principal components is {exvar} %')
-        
+        #pca_obj.plot_cum_explained_var()
         if args.pca_d == 81: #condition un peu nulle car hardcodée, à changer
-            plot_PCA_components(mean, weights)
+            #plot_PCA_components(mean, weights)
 
     
     
