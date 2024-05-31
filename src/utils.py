@@ -2,6 +2,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 
+
+def _move_to_device(self, inputs, labels=None):
+    inputs = inputs.to(self.device)
+    if labels is not None:
+        labels = labels.to(self.device)
+    return inputs, labels
+
+
 # Generaly utilies
 ##################
 

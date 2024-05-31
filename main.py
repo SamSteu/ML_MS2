@@ -170,9 +170,9 @@ def main(args):
 
         #plot ROC
         print("plot ROC")
-        preds_logits = method_obj.get_logits(xtest)
-        softmax_output = np.exp(preds_logits) / np.sum(np.exp(preds_logits), axis=1, keepdims=True)
-        ROC(ytest, softmax_output, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
+        #preds_logits = method_obj.get_logits(xtest)
+        #softmax_output = np.exp(preds_logits) / np.sum(np.exp(preds_logits), axis=1, keepdims=True)
+        #ROC(ytest, softmax_output, args.title, acc_train, macrof1_train, acc_test, macrof1_test)
 
 
 
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     parser.add_argument('--data', default="dataset", type=str, help="path to your dataset")
     parser.add_argument('--nn_type', default="mlp",
                         help="which network architecture to use, it can be 'mlp' | 'transformer' | 'cnn'")
-    parser.add_argument('--nn_batch_size', type=int, default=2, help="batch size for NN training") #16
+    parser.add_argument('--nn_batch_size', type=int, default=16, help="batch size for NN training")
     parser.add_argument('--device', type=str, default="cpu",
                         help="Device to use for the training, it can be 'cpu' | 'cuda' | 'mps'")
     parser.add_argument('--use_pca', action="store_true", help="use PCA for feature reduction")

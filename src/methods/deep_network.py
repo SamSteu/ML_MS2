@@ -91,11 +91,7 @@ class CNN(nn.Module):
 
 
 
-
-
-
-
-class MyMSA(nn.Module):
+class MyMSAinitial(nn.Module):
     def __init__(self, d, n_heads=2):       #A VOIR LES PARAMS PAR DEFAUT (à optimiser)
         super(MyMSA, self).__init__()
         self.d = d
@@ -131,7 +127,50 @@ class MyMSA(nn.Module):
                 seq_result.append(attention @ v)
             result.append(torch.hstack(seq_result))
         return torch.cat([torch.unsqueeze(r, dim=0) for r in result])
-    
+
+
+
+
+class MyMSA(nn.Module):
+    def __init__(self, d, n_heads=2):
+        super(MyMSA, self).__init__()
+        self.d = d
+        self.n_heads = n_heads
+
+        assert d % n_heads == 0, f"Can't divide dimension {d} into {n_heads} heads"
+        self.d_head = d // n_heads
+
+        self.q_mappings = nn.Linear(d, d)
+        self.k_mappings = nn.Linear(d, d)
+        self.v_mappings = nn.Linear(d, d)
+
+        self.softmax = nn.Softmax(dim=-1)
+
+    def forward(self, sequences):
+        batch_size, seq_length, _ = sequences.size()
+
+        # Apply linear transformations to get Q, K, V
+        Q = self.q_mappings(sequences)
+        K = self.k_mappings(sequences)
+        V = self.v_mappings(sequences)
+
+        # Reshape for multi-head attention
+        Q = Q.view(batch_size, seq_length, self.n_heads, self.d_head).transpose(1, 2)
+        K = K.view(batch_size, seq_length, self.n_heads, self.d_head).transpose(1, 2)
+        V = V.view(batch_size, seq_length, self.n_heads, self.d_head).transpose(1, 2)
+
+        # Scaled dot-product attention
+        attention_scores = torch.matmul(Q, K.transpose(-2, -1)) / torch.sqrt(torch.tensor(self.d_head, dtype=torch.float32, device=sequences.device))
+        attention_weights = self.softmax(attention_scores)
+
+        # Apply attention weights to V
+        attention_output = torch.matmul(attention_weights, V)
+
+        # Reshape back to the original dimension
+        attention_output = attention_output.transpose(1, 2).contiguous().view(batch_size, seq_length, -1)
+        return attention_output
+
+
 
 class MyViTBlock(nn.Module):
     def __init__(self, hidden_d, n_heads, mlp_ratio=4):
@@ -145,28 +184,20 @@ class MyViTBlock(nn.Module):
         self.mlp = nn.Sequential(
             nn.Linear(hidden_d, mlp_ratio * hidden_d),
             nn.GELU(),
-            #nn.Linear(mlp_ratio * hidden_d, hidden_d),
-            #nn.GELU()
+            nn.Linear(mlp_ratio * hidden_d, hidden_d)
         )
 
     def forward(self, x):
         # MHSA + residual connection.
         out = x + self.mhsa(self.norm1(x))
         # Feedforward + residual connection
-        #out = out + self.mlp(self.norm2(out))
+        out = out + self.mlp(self.norm2(out))
         return out
 
 
-class MyViT(nn.Module):
-    """
-    A Transformer-based neural network
-    """
 
+class MyViT(nn.Module):
     def __init__(self, chw, n_patches, n_blocks, hidden_d, n_heads, out_d):
-        """
-        Initialize the network.
-        
-        """
         super(MyViT, self).__init__()
         self.chw = chw # (C, H, W)
         self.n_patches = n_patches
@@ -177,7 +208,7 @@ class MyViT(nn.Module):
         # Input and patches sizes
         assert chw[1] % n_patches == 0 # Input shape must be divisible by number of patches
         assert chw[2] % n_patches == 0
-        self.patch_size = (chw[1] / n_patches, chw[2] / n_patches)
+        self.patch_size = (chw[1] // n_patches, chw[2] // n_patches)
 
         # Linear mapper
         self.input_d = int(chw[0] * self.patch_size[0] * self.patch_size[1])
@@ -187,8 +218,7 @@ class MyViT(nn.Module):
         self.class_token = nn.Parameter(torch.rand(1, self.hidden_d))
 
         # Positional embedding
-        # HINT: don't forget the classification token
-        self.positional_embeddings = self.get_positional_embeddings(n_patches**2+1, hidden_d)
+        self.positional_embeddings = nn.Parameter(self.get_positional_embeddings(n_patches**2 + 1, hidden_d))
 
         # Transformer blocks
         self.blocks = nn.ModuleList([MyViTBlock(hidden_d, n_heads) for _ in range(n_blocks)])
@@ -196,52 +226,11 @@ class MyViT(nn.Module):
         # Classification MLP
         self.mlp = nn.Sequential(
             nn.Linear(self.hidden_d, out_d),
-            nn.Softmax(dim=-1)
+            nn.LogSoftmax(dim=-1)
         )
 
 
-    def patchify(self, images, n_patches):
-        n, c, h, w = images.shape
-
-        assert h == w # We assume square image.
-
-        patches = torch.zeros(n, n_patches ** 2, h * w * c // n_patches ** 2)
-        patch_size = h // n_patches
-
-        for idx, image in enumerate(images):
-            for i in range(n_patches):
-                for j in range(n_patches):
-
-                    # Extract the patch of the image.
-                    patch = image[:, i * patch_size: (i + 1) * patch_size, j * patch_size: (j + 1) * patch_size]
-
-                    # Flatten the patch and store it.
-                    patches[idx, i * n_patches + j] = patch.flatten()
-
-        return patches
-
-
-    def get_positional_embeddings(self, sequence_length, d):
-        result = torch.ones(sequence_length, d)
-        for i in range(sequence_length):
-            for j in range(d):
-                if j % 2 == 0:
-                    result[i, j] = torch.sin(torch.tensor(i / (10000 ** (j / d)), dtype=torch.float32))
-                else:
-                    result[i, j] = torch.cos(torch.tensor(i / (10000 ** ((j-1) / d)), dtype=torch.float32))
-        return result
-
-
     def forward(self, x):
-        """
-        Predict the class of a batch of samples with the model.
-
-        Arguments:
-            x (tensor): input batch of shape (N, Ch, H, W)
-        Returns:
-            preds (tensor): logits of predictions of shape (N, C)
-                Reminder: logits are value pre-softmax.
-        """
         n, c, h, w = x.shape
 
         # Divide images into patches.
@@ -254,7 +243,7 @@ class MyViT(nn.Module):
         tokens = torch.cat((self.class_token.expand(n, 1, -1), tokens), dim=1)
 
         # Add positional embedding.
-        out = tokens + self.positional_embeddings.repeat(n, 1, 1)
+        out = tokens + self.positional_embeddings
 
         # Transformer Blocks
         for block in self.blocks:
@@ -267,7 +256,40 @@ class MyViT(nn.Module):
         out = self.mlp(out)
 
         return out
-        #return preds
+
+
+
+    def patchify(self, images, n_patches):
+        n, c, h, w = images.shape
+
+        assert h == w # We assume square image.
+
+        patches = torch.zeros(n, n_patches ** 2, h * w * c // n_patches ** 2, device=images.device)
+        patch_size = h // n_patches
+
+        for idx, image in enumerate(images):
+            for i in range(n_patches):
+                for j in range(n_patches):
+                    # Extract the patch of the image.
+                    patch = image[:, i * patch_size: (i + 1) * patch_size, j * patch_size: (j + 1) * patch_size]
+                    # Flatten the patch and store it.
+                    patches[idx, i * n_patches + j] = patch.flatten()
+
+        return patches
+
+    def get_positional_embeddings(self, sequence_length, d):
+        result = torch.ones(sequence_length, d)
+        for i in range(sequence_length):
+            for j in range(d):
+                if j % 2 == 0:
+                    result[i, j] = torch.sin(torch.tensor(i / (10000 ** (j / d)), dtype=torch.float32))
+                else:
+                    result[i, j] = torch.cos(torch.tensor(i / (10000 ** ((j - 1) / d)), dtype=torch.float32))
+        return result
+
+
+
+
 
 
 class Trainer(object):
@@ -322,13 +344,13 @@ class Trainer(object):
             print("train epoch : ", ep+1, " / ", self.epochs)
             self.train_one_epoch(dataloader, ep)
             
-            correct = 0
-            total = 0
+
             self.model.eval()
-            
+            correct = 0
+            total = 0 
             # Disable gradient calculation
             with torch.no_grad():
-                for batch in dataloader:
+                for batch in tqdm(dataloader):
                     inputs, labels = batch
                     inputs, labels = inputs.to(self.device), labels.to(self.device)
                     outputs = self.model(inputs)
@@ -404,7 +426,7 @@ class Trainer(object):
         pred_labels = []
 
         with torch.no_grad():  # Disable gradient calculation
-            for batch in dataloader:
+            for batch in tqdm(dataloader):
                 x = batch[0]  # Get the input data from the batch
                 x = x.to(self.device)  # Move data to device
                 outputs = self.model(x)  # Get the model predictions
