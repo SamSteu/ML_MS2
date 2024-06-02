@@ -51,7 +51,7 @@ class PCA(object):
         self.exvar_ratio = np.sum(eg) / np.sum(eigvals) * 100
         self.exvar_ratio_vector = np.cumsum(eigvals) / np.sum(eigvals) * 100
         
-        return self.mean, self.W, self.exvar_ratio
+        return self.exvar_ratio
 
 
 

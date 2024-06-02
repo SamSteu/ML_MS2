@@ -61,7 +61,7 @@ def main(args):
         print("Using PCA")
         pca_obj = PCA(d=args.pca_d)
         #Use of the PCA object to reduce the dimensionality of the data:
-        mean, weights, exvar = pca_obj.find_principal_components(xtrain)
+        exvar = pca_obj.find_principal_components(xtrain)
 
         xtrain_reduced = pca_obj.reduce_dimension(xtrain)
         xtest_reduced = pca_obj.reduce_dimension(xtest)
