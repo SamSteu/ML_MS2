@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-## MS2
-
 class PCA(object):
     """
     PCA dimensionality reduction class.
@@ -22,16 +20,15 @@ class PCA(object):
         self.d = d
         self.mean = None
         self.W = None
+        self.exvar_ratio = None
         self.exvar_ratio_vector = []
+
+
 
 
     def find_principal_components(self, training_data):
         """
         Finds the principal components of the training data and returns the explained variance in percentage.
-
-        IMPORTANT: 
-            This function should save the mean of the training data and the kept principal components as
-            self.mean and self.W, respectively.
 
         Arguments:
             training_data (array): training data of shape (N,D)
@@ -40,23 +37,22 @@ class PCA(object):
         """
         self.mean = np.mean(training_data, axis=0)
         training_data = training_data - self.mean
-
         C = np.cov(training_data.T)
         eigvals, eigvecs = np.linalg.eigh(C)
 
-        #sorting our eigvals and select the corresponding eigvecs
-        eigvals = eigvals[:: -1]
+        # sorting our eigvals and select the corresponding eigvecs
+        eigvals = eigvals[::-1]
         eigvecs = eigvecs[:, ::-1]
 
         self.W = eigvecs[:, :self.d]  # Dxd matrix
-        eg = eigvals[:self.d]    # d values
+        eg = eigvals[:self.d]  # d values
         
-        # Compute the explained variance
-        exvar_ratio = np.sum(eg) / np.sum(eigvals) * 100
+        # Compute the explained variance and cumulative explained variance vector
+        self.exvar_ratio = np.sum(eg) / np.sum(eigvals) * 100
+        self.exvar_ratio_vector = np.cumsum(eigvals) / np.sum(eigvals) * 100
+        
+        return self.mean, self.W, self.exvar_ratio
 
-        self.exvar_ratio_vector = eg / np.sum(eg)
-        
-        return self.mean, self.W, exvar_ratio
 
 
     def reduce_dimension(self, data):
@@ -69,21 +65,69 @@ class PCA(object):
             data_reduced (array): reduced data of shape (N,d)
         """
         data = data - self.mean
-
         # project the data using W
         data_reduced = data @ self.W
         return data_reduced
-        
+
+
+
+
+    def reconstruct(self, data_reduced):
+        """
+        Reconstruct the data using the previously computed reduced data and the mean variance.
+
+        Arguments:
+            data_reduced (array): reduced data of shape (N,d)
+        Returns:
+            reconstructed_data (array): reconstructed data of shape (N,D)
+        """
+        reconstructed_data = self.mean + data_reduced @ self.W.T
+        return reconstructed_data
+
+
+
+
+    def plot_reconstruct_one_sample(self, data):
+        # Choisir un échantillon aléatoire parmi les données
+        np.random.seed(25)
+        sample_id = np.random.randint(0, data.shape[0])
+        sample_data = data[sample_id, :]
+
+        sample_reduced_data = self.reduce_dimension(sample_data.reshape(1, -1))
+        sample_reconstructed_data = self.reconstruct(sample_reduced_data)
+
+        plt.figure(figsize=(8, 4))
+        plt.suptitle(f'Using d={self.d} dimensions')
+
+        ax = plt.subplot(1, 2, 1)
+        plt.imshow(sample_data.reshape(28, 28), cmap='gray')
+        ax.set_title('Original Image')
+
+        ax = plt.subplot(1, 2, 2)
+        plt.imshow(sample_reconstructed_data.reshape(28, 28), cmap='gray')
+        ax.set_title('Reconstructed Image')
+        plt.show()
+
+
 
     def plot_cum_explained_var(self):
-        cumulative_explained_variance = np.cumsum(self.exvar_ratio_vector)
-
         # Plot cumulative explained variance ratio
         plt.figure(figsize=(8, 5))
-        plt.plot(range(1, len(cumulative_explained_variance) + 1), cumulative_explained_variance, marker='o', linestyle='--')
+        plt.plot(range(1, len(self.exvar_ratio_vector) + 1), self.exvar_ratio_vector, linestyle='solid')
         plt.xlabel('Number of Principal Components')
         plt.ylabel('Cumulative Explained Variance Ratio')
         plt.title('Cumulative Explained Variance Ratio by Principal Component')
-        plt.axhline(y=0.9,color='gray',linestyle='--')
+        plt.axhline(y=self.exvar_ratio, color='gray', linestyle='--')
+        plt.axvline(x=self.d, color='gray', linestyle='--')
         plt.grid()
+        plt.show()
+
+
+
+    def plot_PCA_components(self):
+        plt.figure(figsize=(8, 18))
+        for i in range(10):
+            plt.subplot(5, 2, i + 1)
+            plt.imshow(self.W[:, i].reshape(28, 28), cmap='gray')
+            plt.title(f'Principal Component: {i}')
         plt.show()

@@ -36,6 +36,7 @@ class MLP(nn.Module):
         return self.layers(x)
 
 
+
 class CNN(nn.Module):
     """
     A CNN which does classification on the Fashion MNIST dataset.
@@ -88,46 +89,6 @@ class CNN(nn.Module):
         x = self.fc2(x)
         
         return x
-
-
-
-class MyMSAinitial(nn.Module):
-    def __init__(self, d, n_heads=2):       #A VOIR LES PARAMS PAR DEFAUT (à optimiser)
-        super(MyMSA, self).__init__()
-        self.d = d
-        self.n_heads = n_heads
-
-        assert d % n_heads == 0, f"Can't divide dimension {d} into {n_heads} heads"
-        d_head = int(d / n_heads)
-        self.d_head = d_head
-
-        self.q_mappings = nn.ModuleList([nn.Linear(d_head, d_head) for _ in range(self.n_heads)])
-        self.k_mappings = nn.ModuleList([nn.Linear(d_head, d_head) for _ in range(self.n_heads)])
-        self.v_mappings = nn.ModuleList([nn.Linear(d_head, d_head) for _ in range(self.n_heads)])
-
-        self.softmax = nn.Softmax(dim=-1)
-
-    def forward(self, sequences):
-        result = []
-        for sequence in sequences:
-            seq_result = []
-            for head in range(self.n_heads):
-
-                # Select the mapping associated to the given head.
-                q_mapping = self.q_mappings[head]
-                k_mapping = self.k_mappings[head]
-                v_mapping = self.v_mappings[head]
-
-                seq = sequence[:, head * self.d_head: (head + 1) * self.d_head]
-
-                # Map seq to q, k, v.
-                q, k, v = q_mapping(seq), k_mapping(seq), v_mapping(seq) ### WRITE YOUR CODE HERE
-
-                attention = self.softmax(q @ k.T / np.sqrt(self.d_head))
-                seq_result.append(attention @ v)
-            result.append(torch.hstack(seq_result))
-        return torch.cat([torch.unsqueeze(r, dim=0) for r in result])
-
 
 
 
