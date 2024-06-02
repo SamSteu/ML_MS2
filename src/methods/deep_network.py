@@ -260,7 +260,7 @@ class Trainer(object):
     It will also serve as an interface between numpy and pytorch.
     """
 
-    def __init__(self, model, lr, epochs, batch_size, optimizer_name, device):
+    def __init__(self, model, lr, epochs, batch_size, optimizer_name="Adam", device="cpu"):
         """
         Initialize the trainer object for a given model.
 
